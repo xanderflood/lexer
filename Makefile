@@ -1,9 +1,12 @@
-FLAGS=-ggdb3 -O0 -fPIC -I include/
+FLAGS=-ggdb3 -O0 -fPIC -Wall -I include/
 
-all: lex-main
+all: lex-main parse-main
 
 lex-main: lex mains/lex.c
 	gcc $(FLAGS) mains/lex.c mod/lex.so -o bin/lex
+
+parse-main: lex parse mains/parse.c
+	gcc $(FLAGS) mains/parse.c mod/lex.so mod/parse.so -o bin/parse
 
 lex: mod/lex/*.c
 	gcc $(FLAGS) -shared mod/lex/*.c -o mod/lex.so

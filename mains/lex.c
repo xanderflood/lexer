@@ -1,3 +1,4 @@
+// for `getopt`
 #include <unistd.h>
 
 #include "lex.h"
@@ -10,11 +11,8 @@ int main(int narg, char **args) {
 
   token_type ctype;
 
-  unsigned int scope_depth;
   bool end_of_token = false;
-  bool first_token = true;
   bool text_mode = false;
-  int i;
 
   char opt;
   while ((opt = getopt(narg, args, "t")) != -1) {
@@ -30,7 +28,6 @@ int main(int narg, char **args) {
   INIT_TOKEN(*next);
 
   char c;
-  cur->type == IND_TOK;
   while ((c = getchar()) != EOF) {
 
     // Only do regular tokenizing if we're not
@@ -114,10 +111,8 @@ int main(int narg, char **args) {
       if (ctype != WTS_TOK)
         ADD_CHAR(*cur, c);
 
-      if (cur->type == IND_TOK) {
+      if (cur->type == IND_TOK)
         cur->type = ctype;
-        first_token = false;
-      }
     }
   }
 }

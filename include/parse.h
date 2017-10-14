@@ -51,24 +51,24 @@ extern const char *expr_type_names[8];
 
 // TODO: replace all the JS_*** *'s with a list type
 
-typedef struct {
-  statement_type type;
+// typedef struct {
+//   statement_type type;
 
-  JE_EXPR *children;
-} JS_STMT;
+//   JE_EXPR *children;
+// } JS_STMT;
 
-typedef struct {
-  // TODO: needs space to stores literal data
-  //  including string (for string literals and symbols)
-  //  integer
-  //  floating point
-  //  etc
+// typedef struct {
+//   // TODO: needs space to stores literal data
+//   //  including string (for string literals and symbols)
+//   //  integer
+//   //  floating point
+//   //  etc
 
-  expression_type type;
+//   expression_type type;
 
-  JS_EXPR *children;
-  JS_STMT *statements;
-} JS_EXPR;
+//   JS_EXPR *children;
+//   JS_STMT *statements;
+// } JS_EXPR;
 
 // LVALUE and RVALUE checking macros
 

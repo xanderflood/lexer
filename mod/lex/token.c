@@ -46,10 +46,3 @@ bool is_num_continuing(char c) {
   return (ctype == PNC_TOK || ctype == LIT_TOK
     || (c == '.'));
 }
-
-void put_token(TOKEN *cur, bool text_mode) {
-  if (text_mode)
-    printf("%s %s\n", token_type_names[cur->type], cur->s);
-  else
-    printf("%c%s\n", cur->type, cur->s);
-}
