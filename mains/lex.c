@@ -1,49 +1,6 @@
-#include <stdio.h>
-#include <malloc.h>
-
-typedef enum {
-  IND_TOK, // indeterminate (not yet known)
-  NUM_TOK, // number literal
-  OPR_TOK, // operation
-  PNC_TOK, // punctuation (grouping)
-  SYM_TOK, // symbol (variable name or keyword)
-  LIT_TOK, // string literal
-  WTS_TOK, // whitespace (not a real token)
-  INV_TOK  // invalid token (immediate failure)
-} token_type;
-
-const char *token_type_names[8] = {
-  "indeterminate",
-  "number",
-  "operation",
-  "punctuation",
-  "symbol",
-  "literal",
-  "ERROR! (whitespace)",
-  "invalid"
-};
-
-#define MAX_TOK_SIZE 100
-typedef struct {
-  char s[MAX_TOK_SIZE];
-  char *end;
-  token_type type;
-} TOKEN;
-#define EMPTY(tok) (&((tok).s[0]) == (tok).end)
-
-#define INIT_TOKEN(tok)  (tok).s[0] = '\0'; (tok).end = &((tok).s[0]);
-#define ADD_CHAR(tok, c) *((tok).end++) = c; *((tok).end) = '\0';
-#define SWAP             tmp = cur; cur = next; next = tmp; INIT_TOKEN(*next);
-
-typedef char bool;
-const bool true = 1;
-const bool false = 0;
-
-token_type diagnoken(char c);
-bool is_num_continuing(char c);
+#include "lex.h"
 
 int main(int n, char **args) {
-
   TOKEN a, b;
   TOKEN *cur = &a;
   TOKEN *next = &b;
@@ -52,16 +9,17 @@ int main(int n, char **args) {
   token_type ctype;
 
   unsigned int scope_depth;
-  bool end_of_token;
+  bool end_of_token = false;
   bool first_token = true;
   int i;
 
-  INIT_TOKEN(a);
-  INIT_TOKEN(b);
+  INIT_TOKEN(*cur);
 
   char c;
   cur->type == IND_TOK;
   while ((c = getchar()) != EOF) {
+
+    INIT_TOKEN(*next);
 
     // Only do regular tokenizing if we're not
     // parsing a string literal.
@@ -71,6 +29,11 @@ int main(int n, char **args) {
       // whitespace always ends a token
       if (ctype == WTS_TOK) {
         next->type = IND_TOK;
+        end_of_token = true;
+      }
+
+      if (ctype == SMC_TOK) {
+        next->type = SMC_TOK;
         end_of_token = true;
       }
 
@@ -119,7 +82,6 @@ int main(int n, char **args) {
         end_of_token = true;
       }
 
-      // TODO if punctuation, adjust scope_depth
 
       // TODO check for comments
     // } else {
@@ -127,10 +89,8 @@ int main(int n, char **args) {
     // }
 
     if (end_of_token) {
-      if (!EMPTY(*cur)) {
-        puts(token_type_names[cur->type]);
-        puts(cur->s);
-      }
+      if (!EMPTY(*cur))
+        put_token(cur);
 
       SWAP;
 
@@ -144,37 +104,4 @@ int main(int n, char **args) {
       }
     }
   }
-}
-
-token_type diagnoken(char c) {
-  if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '$' || c == '_')
-    return SYM_TOK;
-
-  if (c >= '0' && c <= '9')
-    return NUM_TOK;
-
-  if (c == '\'' || c == '"' || c == '`')
-    return LIT_TOK;
-
-  if (c == '+' || c == '-' || c == '=' || c == '<' || c == '>'
-    || c == '.' || c == '*' || c == '/' || c == '%' ||  c == '\\'
-    || c == ':' || c == '|' || c == '&' || c == '^' || c == '~'
-    || c == '?')
-    return OPR_TOK;
-
-  if (c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']'
-    || c == ';' || c == ',')
-    return PNC_TOK;
-
-  if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-    return WTS_TOK;
-
-  return INV_TOK;
-}
-
-
-bool is_num_continuing(char c) {
-  token_type ctype = diagnoken(c);
-  return (ctype == PNC_TOK || ctype == LIT_TOK
-    || (c == '.'));
 }
