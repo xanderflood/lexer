@@ -1,6 +1,8 @@
+#include <unistd.h>
+
 #include "lex.h"
 
-int main(int n, char **args) {
+int main(int narg, char **args) {
   TOKEN a, b;
   TOKEN *cur = &a;
   TOKEN *next = &b;
@@ -11,7 +13,18 @@ int main(int n, char **args) {
   unsigned int scope_depth;
   bool end_of_token = false;
   bool first_token = true;
+  bool text_mode = false;
   int i;
+
+  char opt;
+  while ((opt = getopt(narg, args, "t")) != -1) {
+    switch (opt) {
+    case 't': text_mode = true; break;
+    default:
+      fprintf(stderr, "Usage: %s [-t] [file...]\n", args[0]);
+      exit(EXIT_FAILURE);
+    }
+  }
 
   INIT_TOKEN(*cur);
   INIT_TOKEN(*next);
@@ -91,7 +104,7 @@ int main(int n, char **args) {
 
     if (end_of_token) {
       if (!EMPTY(*cur))
-        put_token(cur);
+        put_token(cur, text_mode);
 
       SWAP;
       INIT_TOKEN(*next);

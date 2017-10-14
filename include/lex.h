@@ -32,6 +32,6 @@ typedef struct {
 
 token_type diagnoken(char c);
 bool is_num_continuing(char c);
-void put_token(TOKEN *cur);
+void put_token(TOKEN *cur, bool text_mode);
 
 #endif

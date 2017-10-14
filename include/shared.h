@@ -1,6 +1,7 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <malloc.h>
 
