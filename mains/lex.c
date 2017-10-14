@@ -14,12 +14,11 @@ int main(int n, char **args) {
   int i;
 
   INIT_TOKEN(*cur);
+  INIT_TOKEN(*next);
 
   char c;
   cur->type == IND_TOK;
   while ((c = getchar()) != EOF) {
-
-    INIT_TOKEN(*next);
 
     // Only do regular tokenizing if we're not
     // parsing a string literal.
@@ -32,12 +31,14 @@ int main(int n, char **args) {
         end_of_token = true;
       }
 
-      if (ctype == SMC_TOK) {
+      // and a semicolon
+      else if (ctype == SMC_TOK) {
+        ADD_CHAR(*next, c);
         next->type = SMC_TOK;
         end_of_token = true;
       }
 
-      // so does a quote
+      // and does a quote
       else if (ctype == LIT_TOK) {
         ADD_CHAR(*next, c);
         next->type = LIT_TOK;
@@ -93,10 +94,12 @@ int main(int n, char **args) {
         put_token(cur);
 
       SWAP;
+      INIT_TOKEN(*next);
 
       end_of_token = false;
     } else {
-      ADD_CHAR(*cur, c);
+      if (ctype != WTS_TOK)
+        ADD_CHAR(*cur, c);
 
       if (cur->type == IND_TOK) {
         cur->type = ctype;

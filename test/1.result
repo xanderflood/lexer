@@ -1,0 +1,12 @@
+number 452
+operation +
+symbol dkoda
+operation /
+punctuation (
+number 10
+operation ^
+number 3
+punctuation )
+operation -
+number 7
+semicolon ;
