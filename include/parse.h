@@ -1,6 +1,8 @@
 #ifndef PARSE_H
 #define PARSE_H
 
+#include "shared.h"
+
 // NOTE: It seems to be typical to consider a block
 // as a type of statment rather than as an expression.
 // This makes sense because a block doesn't produce a
@@ -12,42 +14,41 @@
 // those.
 
 typedef enum {
-  ASSIGN,       // 2 exprs linked by  ='s (always LVALUE then RVALUE)
-  ASSIGN_PLUS,  // 2 exprs linked by *='s (always LVALUE then RVALUE)
-  ASSIGN_TIMES, // 2 exprs linked by +='s (always LVALUE then RVALUE)
-  IF,           // 1 expr  followed by one or two blocks
-  FOR,          // for (three child expressions followed by a block)
-  FOR_IN,       // for (a in b) (two child expressions and then a block)
-  FUNCTION,     // function(a,...,z) (any number of child expressions ending with a block)
-  WHILE,        // while (...) (one expressions and then a block)
-  DO_WHILE,     // do {...} while (...) (one block followed by an expression)
-  SWITCH,       // ??
-  WITH,         // one expression then a block
-  TRY_CATCH     // block, possible expression, then another block
+  IND_STMT,          // indeterminate
+  ASSIGN_STMT,       // 2 exprs linked by  ='s (always LVALUE then RVALUE)
+  ASSIGN_PLUS_STMT,  // 2 exprs linked by *='s (always LVALUE then RVALUE)
+  ASSIGN_TIMES_STMT, // 2 exprs linked by +='s (always LVALUE then RVALUE)
+  IF_STMT,           // 1 expr  followed by one or two blocks
+  FOR_STMT,          // for (three child expressions followed by a block)
+  FOR_IN_STMT,       // for (a in b) (two child expressions and then a block)
+  FUNCTION_STMT,     // function(a,...,z) (any number of child expressions ending with a block)
+  WHILE_STMT,        // while (...) (one expressions and then a block)
+  DO_WHILE_STMT,     // do {...} while (...) (one block followed by an expression)
+  SWITCH_STMT,       // ??
+  WITH_STMT,         // one expression then a block
+  TRY_CATCH_STMT     // block, possible expression, then another block
 } statement_type;
 
 typedef enum {
-  LIT_NUM,
-  LIT_STR,
-  CALL,      // children are arbitrary expression followed by a list of arguments
-  SYMBOL,    // string data
-  DECL,      // string data (similar to SYMBOL but declares a )
-  BLOCK,     // arbitrary list of statements
-  ARRAY,     // arbitrary list of expressions
-  OBJECT,    // alternates between symbols and RVALUE types
-  PLUS,      // two arbitrary expressions
-  POST_INCR, // one arbitrary expression
-  PRE_INCR,  // one arbitrary expression
-  TIMES,     // two arbitrary expressions
-  EQUALS,    // two arbitrary expressions
-  LT,        // two arbitrary expressions
-  GT,        // two arbitrary expressions
-  LET,       // two arbitrary expressions
-  GET        // two arbitrary expressions
+  IND_EXPR,       // indeterminate
+  LIT_NUM_EXPR,   //
+  LIT_STR_EXPR,   //
+  CALL_EXPR,      // children are arbitrary expression followed by a list of arguments
+  SYMBOL_EXPR,    // string data
+  DECL_EXPR,      // string data (similar to SYMBOL but declares a )
+  BLOCK_EXPR,     // arbitrary list of statements
+  ARRAY_EXPR,     // arbitrary list of expressions
+  OBJECT_EXPR,    // alternates between symbols and RVALUE types
+  PLUS_EXPR,      // two arbitrary expressions
+  POST_INCR_EXPR, // one arbitrary expression
+  PRE_INCR_EXPR,  // one arbitrary expression
+  TIMES_EXPR,     // two arbitrary expressions
+  EQUALS_EXPR,    // two arbitrary expressions
+  LT_EXPR,        // two arbitrary expressions
+  GT_EXPR,        // two arbitrary expressions
+  LET_EXPR,       // two arbitrary expressions
+  GET_EXPR        // two arbitrary expressions
 } expression_type;
-
-extern const char *stmt_type_names[8];
-extern const char *expr_type_names[8];
 
 typedef struct JS_EXPRS JS_EXPRS;
 typedef struct JS_STMTS JS_STMTS;
@@ -81,10 +82,20 @@ struct JS_STMTS {
   JS_STMTS *next;
 };
 
-// LVALUE and RVALUE checking macros
+// alloc.c
+JS_STMT *init_statement();
+JS_EXPR *init_expression();
+void destroy_statement(JS_STMT *stmt);
+void destroy_expression(JS_EXPR *expr);
 
-// something like:
-// int read_statement(TOKEN_STREAM *);
-// int read_expression(TOKEN_STREAM *);
+// tree.c
+void    push_statement(JS_STMTS *list, JS_STMT *data);
+JS_STMT *pop_statement(JS_STMTS *list);
+void    push_expression(JS_EXPRS *list, JS_expr *data);
+JS_EXPR *pop_expression(JS_EXPRS *list);
+
+// read.c
+int read_statement(JS_STMT *stmt);
+int read_block(JS_EXPR *block);
 
 #endif

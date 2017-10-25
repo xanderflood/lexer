@@ -25,6 +25,12 @@ typedef struct {
   token_type type;
 } TOKEN;
 
+struct TOKEN_STREAM {
+  struct TOKEN_STREAM *next;
+  TOKEN data;
+};
+typedef struct TOKEN_STREAM TOKEN_STREAM;
+
 #define EMPTY(tok)       (&((tok).s[0]) == (tok).end)
 #define INIT_TOKEN(tok)  (tok).s[0] = '\0'; (tok).end = &((tok).s[0]); (tok).type = IND_TOK;
 #define ADD_CHAR(tok, c) *((tok).end++) = c; *((tok).end) = '\0';
@@ -34,6 +40,9 @@ token_type diagnoken(char c);
 bool is_num_continuing(char c);
 
 void put_token(TOKEN *cur, bool text_mode);
-int get_token(TOKEN *cur);
+
+int init_token_stream(TOKEN_STREAM **ts);
+int next_token(TOKEN_STREAM **ts);
+int peek_token(TOKEN_STREAM *ts, TOKEN **t, uint k);
 
 #endif
