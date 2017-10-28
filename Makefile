@@ -1,18 +1,18 @@
-FLAGS=-ggdb3 -O0 -fPIC -Wall -I include/
+COMPILE=gcc -ggdb3 -O0 -fPIC -Wall -I include/ -Wpedantic $(FLAGS)
 
-all: lex-main parse-main
+all: lex-main #parse-main
 
 lex-main: lex mains/lex.c
-	gcc $(FLAGS) mains/lex.c mod/lex.so -o bin/lex
+	$(COMPILE) mains/lex.c mod/lex.so -o bin/lex
 
-parse-main: lex mains/parse.c
-	gcc $(FLAGS) mains/parse.c mod/lex.so mod/parse.so -o bin/parse
+# parse-main: lex mains/parse.c
+# 	$(COMPILE) mains/parse.c mod/lex.so mod/parse.so -o bin/parse
 
 lex: mod/lex/*.c
-	gcc $(FLAGS) -shared mod/lex/*.c -o mod/lex.so
+	$(COMPILE) -shared mod/lex/*.c -o mod/lex.so
 
 # parse: mod/parse/*.c
-# 	gcc $(FLAGS) -shared mod/parse/*.c -o mod/parse.so
+# 	$(COMPILE) -shared mod/parse/*.c -o mod/parse.so
 
 clean:
 	find bin/ ! -name  '.gitkeep' -type f -delete
