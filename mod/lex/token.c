@@ -48,12 +48,6 @@ token_type diagnoken(char c) {
   return INV_TOK;
 }
 
-bool is_num_continuing(char c) {
-  token_type ctype = diagnoken(c);
-  return (ctype == PNC_TOK || ctype == LIT_TOK
-    || (c == '.'));
-}
-
 // All keywords and some operations will get erroneously
 // marked as symbols. When a symbol is completed, we need
 // to reexamine it.

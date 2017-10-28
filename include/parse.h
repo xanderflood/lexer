@@ -91,7 +91,7 @@ void destroy_expression(JS_EXPR *expr);
 // tree.c
 void    push_statement(JS_STMTS *list, JS_STMT *data);
 JS_STMT *pop_statement(JS_STMTS *list);
-void    push_expression(JS_EXPRS *list, JS_expr *data);
+void    push_expression(JS_EXPRS *list, JS_EXPR *data);
 JS_EXPR *pop_expression(JS_EXPRS *list);
 
 // read.c

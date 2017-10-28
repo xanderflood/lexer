@@ -9,51 +9,63 @@ void put_token(TOKEN *cur, bool text_mode) {
 }
 
 // reading tokens (TOKEN_STREAM)
-static int load_token(TOKEN_STREAM *ts) {
-  assert(ts->next == NULL);
-
-  ts->next = (struct TOKEN_STREAM*)malloc(sizeof(TOKEN_STREAM));
-  ts->next->next = NULL;
-  return scanf("%c%s\n", (char*)&(ts->next->data.type), ts->next->data.s) < 0;
+static int load_token(TOKEN *token) {
+  return scanf("%c%s\n", (char*)(&token->type), token->s) < 0;
 }
 
 int init_token_stream(TOKEN_STREAM **ts) {
   *ts = (TOKEN_STREAM *)malloc(sizeof(TOKEN_STREAM));
 
   (*ts)->next = NULL;
-  return scanf("%c%s\n", (char*)&((*ts)->data.type), (*ts)->data.s) < 0;
+  return load_token(&(*ts)->data);
 }
 
-int next_token(TOKEN_STREAM **ts) {
+int next_token(TOKEN_STREAM **ts, char destroy) {
   TOKEN_STREAM *ts_old;
   int ret;
 
   if ((*ts)->next == NULL) {
-    ret = load_token(*ts);
+    (*ts)->next = (struct TOKEN_STREAM*)malloc(sizeof(TOKEN_STREAM));
+    (*ts)->next->next = NULL;
+
+    ret = load_token(&(*ts)->next->data);
     if (ret) return ret;
   }
 
-  ts_old = *ts;
-  *ts = (*ts)->next;
-  free(ts_old);
+  if (destroy) {
+    ts_old = *ts;
+    *ts = (*ts)->next;
+    free(ts_old);
+  }
 
   return 0;
 }
 
-int peek_token(TOKEN_STREAM *ts, TOKEN **t, uint k) {
+int peek_token(TOKEN_STREAM *ts, uint k, TOKEN **tok) {
+  TOKEN_STREAM *to;
+  int ret = seek_token(ts, k, &to);
+  if (ret) return ret;
+
+  *tok = &to->data;
+  return 0;
+}
+
+int seek_token(TOKEN_STREAM *ts, uint k, TOKEN_STREAM **to) {
   int ret;
 
-  while (k > 0) {
-    if (!ts->next) {
-      ret = load_token(ts);
-      if (ret) return ret;
-    }
-
+  // scan through what's already loaded
+  while (k > 0 && ts->next) {
     ts = ts->next;
+    k--;
   }
 
-  *t = &ts->data;
+  while (k > 0) {
+    ret = next_token(&ts->next, 0);
+    if (ret) return ret;
+    k--;
+  }
 
+  *to = ts;
   return 0;
 }
 
