@@ -24,3 +24,23 @@ void destroy_statement(JS_STMT *stmt) {
 void destroy_expression(JS_EXPR *expr) {
   free(expr);
 }
+
+void destroy_statement_list(JS_STMTS stmt) {
+  JS_STMTS last;
+
+  do {
+    last = stmt;
+    stmt = stmt->next;
+    free(last);
+  } while(stmt->next);
+}
+
+void destroy_expression_list(JS_EXPRS expr) {
+  JS_EXPRS last;
+
+  do {
+    last = expr;
+    expr = expr->next;
+    free(last);
+  } while(expr->next);
+}

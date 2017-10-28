@@ -31,8 +31,8 @@ typedef enum {
 
 typedef enum {
   IND_EXPR,       // indeterminate
-  LIT_NUM_EXPR,   //
-  LIT_STR_EXPR,   //
+  LIT_NUM_EXPR,   // numeric literal
+  LIT_STR_EXPR,   // string literal
   CALL_EXPR,      // children are arbitrary expression followed by a list of arguments
   SYMBOL_EXPR,    // string data
   DECL_EXPR,      // string data (similar to SYMBOL but declares a )
@@ -50,8 +50,11 @@ typedef enum {
   GET_EXPR        // two arbitrary expressions
 } expression_type;
 
-typedef struct JS_EXPRS JS_EXPRS;
-typedef struct JS_STMTS JS_STMTS;
+typedef struct EXPR_ITEM EXPR_ITEM;
+typedef struct STMT_ITEM STMT_ITEM;
+
+typedef EXPR_ITEM* JS_EXPRS;
+typedef STMT_ITEM* JS_STMTS;
 
 typedef struct {
   statement_type type;
@@ -60,26 +63,21 @@ typedef struct {
 } JS_STMT;
 
 typedef struct {
-  // TODO: needs space to stores literal data
-  //  including string (for string literals and symbols)
-  //  integer
-  //  floating point
-  //  etc
-
   expression_type type;
 
+  void *data;
   JS_EXPRS *children;
   JS_STMTS *statements;
 } JS_EXPR;
 
-struct JS_EXPRS {
-  JS_EXPR data;
-  JS_EXPRS *next;
+struct EXPR_ITEM {
+  EXPR_ITEM *next;
+  JS_EXPR *data;
 };
 
-struct JS_STMTS {
-  JS_STMT data;
-  JS_STMTS *next;
+struct STMT_ITEM {
+  STMT_ITEM *next;
+  JS_STMT *data;
 };
 
 // alloc.c
@@ -87,6 +85,8 @@ JS_STMT *init_statement();
 JS_EXPR *init_expression();
 void destroy_statement(JS_STMT *stmt);
 void destroy_expression(JS_EXPR *expr);
+void destroy_statement_list(JS_STMTS stmt);
+void destroy_expression_list(JS_EXPRS expr);
 
 // tree.c
 void    push_statement(JS_STMTS *list, JS_STMT *data);
