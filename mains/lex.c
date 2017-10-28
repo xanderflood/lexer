@@ -32,87 +32,73 @@ int main(int narg, char **args) {
 
     // Only do regular tokenizing if we're not
     // parsing a string literal.
-    // if (cur->type == LIT_TOK) {
+    if (cur->type == LIT_TOK) {
+      ctype = IND_TOK;
+      // TODO: call into another function that reads in
+      //       the whole string and stores it in `cur`
+    } else {
       ctype = diagnoken(c);
 
-      // whitespace always ends a token
+      /* Decide whether to coninue */
+
+      // start an empty new token if
+      // (-) a whitespace character comes in
       if (ctype == WTS_TOK) {
         next->type = IND_TOK;
         end_of_token = true;
       }
 
-      // and a semicolon
-      else if (ctype == SMC_TOK) {
-        ADD_CHAR(*next, c);
-        next->type = SMC_TOK;
-        end_of_token = true;
-      }
-
-      // and does a quote
-      else if (ctype == LIT_TOK) {
-        ADD_CHAR(*next, c);
-        next->type = LIT_TOK;
-        end_of_token = true;
-      }
-
-      // punctuation always ends immediately
-      else if (cur->type == PNC_TOK) {
-        ADD_CHAR(*next, c);
+      // put `c` onto the start of a new token if
+      // (1) the last character was punctuation (PNC tokens are always 1 char)
+      // (2) a semicolon or quote comes in
+      else if (cur->type == PNC_TOK || ctype == SMC_TOK || ctype == SMC_TOK) {
         next->type = ctype;
         end_of_token = true;
       }
 
-      // (outside of quote mode) a quote always
-      // starts a new token.
-      // when parsing an operation, a symbol,
-      // number, punctuation or quote chars will
-      // start a new token.
-      else if (cur->type == LIT_TOK || (cur->type == OPR_TOK &&
-         (ctype == SYM_TOK || ctype == NUM_TOK || PNC_TOK || LIT_TOK))) {
-        ADD_CHAR(*next, c);
-        next->type = ctype;
-        end_of_token = true;
-      }
-      // TODO: can operations also be terminated by certain operations?
-      // TODO: for instance, is `a =++b` legal syntax?
-      // TODO: maybe operators only continue on '='? but what about ++ then?
-
-      // numbers are terminated by an operation,
-      // punctuation, literal or whitespace char
-      else if (cur->type == NUM_TOK &&
-         (ctype == PNC_TOK || ctype == OPR_TOK || ctype == LIT_TOK)) {
-        ADD_CHAR(*next, c);
+      // OPR_TOK are only continued by OPR_TOK chars
+      // TODO: but not always. properly implement all multi-char operations
+      //        is a +++ b valid? is it the same as a ++ +b or a + ++b?
+      //        what about a ++++ b vs a ++(++b)
+      else if (cur->type == OPR_TOK && ctype != OPR_TOK) {
         next->type = ctype;
         end_of_token = true;
       }
 
-      else if (cur->type == SYM_TOK &&
-        (ctype == OPR_TOK || ctype == PNC_TOK || ctype == LIT_TOK)) {
-        ADD_CHAR(*next, c);
+      // numbers and symbols are also terminated by operations and punctuation
+      else if ((cur->type == NUM_TOK || cur->type == SYM_TOK)
+            && (ctype     == PNC_TOK || ctype     == OPR_TOK)) {
         next->type = ctype;
         end_of_token = true;
       }
 
+      // TODO: check for comments // and /*
+    }
 
-      // TODO check for comments
-    // } else {
-    //   // TODO: string literal parsing needs to find unescaped matching quotes!
-    // }
+    // Add new character to the appropriate token
+    if (ctype != WTS_TOK) {
+      if (end_of_token)
+        ADD_CHAR(*next, c);
+      else
+        ADD_CHAR(*cur, c);
+    }
 
     if (end_of_token) {
+      if (cur->type == SYM_TOK)
+        reexamine_symbol(cur);
+
+      // TODO: validate format if OPR_TOK or NUM_TOK
+
       if (!EMPTY(*cur))
         put_token(cur, text_mode);
 
-      SWAP;
+      CYCLE;
       INIT_TOKEN(*next);
-
-      end_of_token = false;
     } else {
-      if (ctype != WTS_TOK)
-        ADD_CHAR(*cur, c);
-
       if (cur->type == IND_TOK)
         cur->type = ctype;
     }
+
+    end_of_token = false;
   }
 }
