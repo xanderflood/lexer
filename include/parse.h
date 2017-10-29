@@ -99,11 +99,10 @@ struct JS_EXPR {
 #define TERMINAL_EXPR_STATE(expr)  ((expr)->state < 0)
 #define FINISHED_EXPR_STATE(expr)  (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr))
 #define EXPECTANT_EXPR_STATE(expr) (!((expr)->state % 2))
-#define SET_EXPR_TYPE(expr, _type) do { ((expr)->type = _type); init_state(expr); } while (0)
 
 // alloc.c
 JS_STMT *init_statement();
-JS_EXPR *init_expression();
+JS_EXPR *init_expression(expression_type type);
 void destroy_statement(JS_STMT *stmt);
 void destroy_expression(JS_EXPR *expr);
 void destroy_statement_list(JS_STMTS stmt);

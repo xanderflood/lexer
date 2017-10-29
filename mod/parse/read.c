@@ -43,6 +43,7 @@ int read_statement(JS_STMT *stmt) {
 
     // verbs
     // TODO: always set `current` to point to this new node
+    //       then, seek upwards, in case the new node is already finished (as in `a++;`)
     else if (tok.type == OPR_TOK) {
       // TODO
       // (1) seek down according to operator precedence
@@ -63,27 +64,21 @@ int read_statement(JS_STMT *stmt) {
 
     // nouns
     else if (tok.type == NUM_TOK) {
-      JS_EXPR *noun = init_expression();
-      SET_EXPR_TYPE(noun, LIT_NUM_EXPR);
+      JS_EXPR *noun = init_expression(LIT_NUM_EXPR);
       noun->data = strdup(tok.s);
       // TODO: interpret the numeric contents
 
       add_child_expression(current, noun);
-      // TODO: seek upwards to the next unfinished node
     } else if (tok.type == LIT_TOK) {
-      JS_EXPR *noun = init_expression();
-      SET_EXPR_TYPE(noun, LIT_STR_EXPR);
+      JS_EXPR *noun = init_expression(LIT_STR_EXPR);
       noun->data = strdup(tok.s);
 
       add_child_expression(current, noun);
-      // TODO: seek upwards to the next unfinished node
     } else if (tok.type == SYM_TOK) {
-      JS_EXPR *noun = init_expression();
-      SET_EXPR_TYPE(noun, SYMBOL_EXPR);
+      JS_EXPR *noun = init_expression(SYMBOL_EXPR);
       noun->data = strdup(tok.s);
 
       add_child_expression(current, noun);
-      // TODO: seek upwards to the next unfinished node
     }
 
     // keywords should not appear while parsing a statement

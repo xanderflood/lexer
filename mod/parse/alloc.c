@@ -1,4 +1,3 @@
-#include "parse.h"
 #include "local.h"
 
 JS_STMT *init_statement() {
@@ -9,19 +8,20 @@ JS_STMT *init_statement() {
   stmt->expressions = NULL;
 
   // Add a root expression
-  root = init_expression();
-  root->type = ROOT_EXPR;
+  root = init_expression(ROOT_EXPR);
   push_expression(&stmt->expressions, root);
 
   return stmt;
 }
 
-JS_EXPR *init_expression() {
+JS_EXPR *init_expression(expression_type t) {
   JS_EXPR *expr = (JS_EXPR*)malloc(sizeof(JS_EXPR));
-  expr->type = IND_EXPR;
   expr->children = NULL;
   expr->parent   = NULL;
   expr->state    = 0;
+
+  expr->type = t;
+  init_state(expr);
 
   return expr;
 }

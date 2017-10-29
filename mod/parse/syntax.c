@@ -50,7 +50,6 @@ const expression_format expr_type_fmts[num_expr_types] = {
   INFIX_BINOP_EXPR_FMT,  // GT_EXPR
   INFIX_BINOP_EXPR_FMT,  // LET_EXPR
   INFIX_BINOP_EXPR_FMT,  // GET_EXPR
-
   COMMA_EXPR_FMT         // COMMA_EXPR
 };
 
