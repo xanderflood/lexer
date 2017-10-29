@@ -56,11 +56,10 @@ const expression_format expr_type_fmts[num_expr_types] = {
 
 // `current` has reverted upward to `parent`, meaning
 // then all of `parent`s children have a terminal state
-// now. A mysterious new token appears, and `parent`
-// must tell us how to handle it:
-// (1) update state only, no structural change to AST
-// (2) 
-// (3)
+// now. A new token appears, and `parent` must tell us
+// how to handle it.
+
+// return 0 if the token was not useful (propogate the token  )
 int update_state(JS_EXPR *parent, TOKEN *new) {
   assert (EXPR_TYPE_INTERNAL_NODE(parent));
 
@@ -127,7 +126,7 @@ int update_state(JS_EXPR *parent, TOKEN *new) {
 }
 
 // -2 = initially terminal AND expectant
-// -1 = initially terminal and NOT expectant
+// -1 = initially terminal and NOT expectant (i.e. FINISHED)
 //  0 = invalid
 //  1 = waiting on signal tokens before expecting children
 //  2 = initally expectant

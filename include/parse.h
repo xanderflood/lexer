@@ -95,8 +95,11 @@ struct JS_EXPR {
   signed char state;
 };
 
-#define TERMINAL_EXPR_STATE(expr) ((expr)->state < 0)
+#define INVALID_EXPR_STATE(expr)   (!!(expr))
+#define TERMINAL_EXPR_STATE(expr)  ((expr)->state < 0)
+#define FINISHED_EXPR_STATE(expr)  (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr))
 #define EXPECTANT_EXPR_STATE(expr) (!((expr)->state % 2))
+#define SET_EXPR_TYPE(expr, _type) do { ((expr)->type = _type); init_state(expr); } while (0)
 
 // alloc.c
 JS_STMT *init_statement();
