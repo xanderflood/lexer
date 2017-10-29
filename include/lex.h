@@ -4,11 +4,13 @@
 #include "shared.h"
 
 typedef enum {
+  // these should never be emitted
   IND_TOK = 0, // indeterminate (not yet known)
   WTS_TOK = 1, // whitespace (not a real token)
   CMT_TOK = 2, // comment token
   INV_TOK = 3, // invalid token (immediate failure)
 
+  // actual values
   NUM_TOK = 4, // number literal
   LIT_TOK = 5, // string literal
 

@@ -21,6 +21,8 @@ typedef enum {
 typedef enum {
   IND_EXPR,       // indeterminate
 
+  ROOT_EXPR,      // placeholder at the top of a statement's expr tree
+
   // nouns (leaves)
   LIT_NUM_EXPR,   // numeric literal
   LIT_STR_EXPR,   // string literal
@@ -43,37 +45,40 @@ typedef enum {
   LT_EXPR,           // two arbitrary expressions
   GT_EXPR,           // two arbitrary expressions
   LET_EXPR,          // two arbitrary expressions
-  GET_EXPR           // two arbitrary expressions
+  GET_EXPR,          // two arbitrary expressions
+
+  PAREN_EXPR         // not a real expression, but used while building to keep track of operator precedence
 } expression_type;
 
+// These structs are connected in complicated ways,
+// so we have to create the names before describing
+// the contents
 typedef struct EXPR_ITEM EXPR_ITEM;
 typedef struct STMT_ITEM STMT_ITEM;
+typedef struct JS_EXPR JS_EXPR;
+typedef struct JS_STMT JS_STMT;
 
+// linked lists of JS_EXPRS and JS_STMTS
 typedef EXPR_ITEM* JS_EXPRS;
 typedef STMT_ITEM* JS_STMTS;
+struct EXPR_ITEM { EXPR_ITEM *next; JS_EXPR *data; };
+struct STMT_ITEM { STMT_ITEM *next; JS_STMT *data; };
 
-typedef struct {
+// the things themselves
+struct JS_STMT {
   statement_type type;
 
   JS_STMTS children;
-  JS_EXPRS statements;
-} JS_STMT;
+  JS_EXPRS expressions;
+};
 
-typedef struct {
+struct JS_EXPR {
   expression_type type;
 
   void *data;
   JS_EXPRS children;
-} JS_EXPR;
-
-struct EXPR_ITEM {
-  EXPR_ITEM *next;
-  JS_EXPR *data;
-};
-
-struct STMT_ITEM {
-  STMT_ITEM *next;
-  JS_STMT *data;
+  JS_EXPR *parent;
+  bool unfinished;
 };
 
 // alloc.c
