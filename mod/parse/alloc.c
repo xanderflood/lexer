@@ -1,10 +1,17 @@
 #include "parse.h"
+#include "local.h"
 
 JS_STMT *init_statement() {
+  JS_EXPR *root;
   JS_STMT *stmt = (JS_STMT*)malloc(sizeof(JS_STMT));
   stmt->type = IND_STMT;
   stmt->children = NULL;
   stmt->expressions = NULL;
+
+  // Add a root expression
+  root = init_expression();
+  root->type = ROOT_EXPR;
+  push_expression(&stmt->expressions, root);
 
   return stmt;
 }
@@ -14,7 +21,7 @@ JS_EXPR *init_expression() {
   expr->type = IND_EXPR;
   expr->children = NULL;
   expr->parent   = NULL;
-  expr->unfinished = true;
+  expr->state    = 0;
 
   return expr;
 }

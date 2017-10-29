@@ -1,7 +1,8 @@
+#include "local.h"
+
 #include "string.h"
 
-#include "parse.h"
-#include "lex.h"
+// static int seek_upwards(JS_EXPR **current);
 
 // returns:
 //   0 OK
@@ -22,11 +23,7 @@ int read_statement(JS_STMT *stmt) {
   // otherwise:
 
   stmt->type = EXPR_STMT;
-
-  current = init_expression();
-  current->type = ROOT_EXPR;
-
-  push_expression(&stmt->expressions, current);
+  current = stmt->expressions->data;
 
   do {
     // semicolon
@@ -36,59 +33,59 @@ int read_statement(JS_STMT *stmt) {
       return 0;
     }
 
-    // parentheses
-    if (tok.type == PNC_TOK) {
-      if (tok.s[0] == '(');
-        // TODO: push a PAREN_EXPR
-
-      else if (tok.s[0] == ')');
-        // TODO: seek upwards to a PAREN_EXPR and close it
-
-      else
-        return 2; // raise(UNEXPECTED_PNC_TOK);
-    }
-
-    // operations
+    // internal-nouns
     else if (tok.type == OPR_TOK) {
       // TODO
       // (1) seek up or down according to operator precedence
       // (2) postfix_push this node in
     }
 
-    // nouns
+    // leaf-nouns
     else if (tok.type == NUM_TOK) {
       JS_EXPR *noun = init_expression();
       noun->type = LIT_NUM_EXPR;
       noun->data = strdup(tok.s);
       // TODO: interpret the numeric contents
 
-      push_expression(&current->children, noun);
+      add_child_expression(current, noun);
       // TODO: seek upwards to the next unfinished node
     } else if (tok.type == LIT_TOK) {
       JS_EXPR *noun = init_expression();
       noun->type = LIT_STR_EXPR;
       noun->data = strdup(tok.s);
 
-      push_expression(&current->children, noun);
+      add_child_expression(current, noun);
       // TODO: seek upwards to the next unfinished node
     } else if (tok.type == SYM_TOK) {
       JS_EXPR *noun = init_expression();
       noun->type = SYMBOL_EXPR;
       noun->data = strdup(tok.s);
 
-      push_expression(&current->children, noun);
+      add_child_expression(current, noun);
       // TODO: seek upwards to the next unfinished node
+    } else if (tok.type == PNC_TOK && tok.s[0] == '(') {
+      //
+    } else if (tok.type == PNC_TOK && tok.s[0] == '[') {
+      //
     }
 
-    // otherwise, errors
+    // keywords should not appear while parsing a statement
+    // TODO: except `function`
     else if (tok.type == KEY_TOK)
       return 3; // raise (UNEXPECTED_KEYWORK)
-    else
-      return 4; // raise(INVALID_TOKEN_TYPE)
+
+    // otherwise signal characters like ',', ')' ']', ':'
+    else {
+      update_state(current, &tok);
+    }
   } while (!next_token(&ts, 1));
 
   return 1; // raise(EXPECTED_SEMICOLON)
 }
 
 // int read_block(JS_EXPR *block) {
+// }
+
+// static int seek_upwards(JS_EXPR **current) {
+
 // }

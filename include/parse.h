@@ -48,14 +48,13 @@ typedef enum {
   LET_EXPR,          // 2 arbitrary expressions
   GET_EXPR,          // 2 arbitrary expressions
 
-  COMMA_EXPR         // not a real expression, but used while building to keep track of operator precedence
+  COMMA_EXPR         // n arbitrary expressions - evaluates each and then returns the last
 } expression_type;
+#define num_expr_types 24
 
 #define EXPR_TYPE_VERB(et) ((et >= PAREN_EXPR) && (et <= COMMA_EXPR))
 #define EXPR_TYPE_NOUN(et) (et == LIT_NUM_EXPR || et == LIT_STR_EXPR || et == SYMBOL_EXPR || et == DECL_EXPR)
-#define EXPR_TYPE_INTERNAL_NODE(et) (EXPR_TYPE_VERB(et) || et == ROOT_EXPR)
-
-#define num_expr_types 23
+#define EXPR_TYPE_INTERNAL_NODE(expr) (EXPR_TYPE_VERB((expr)->type) || (expr)->type == ROOT_EXPR)
 
 // a size of 0 means variadic
 const char expression_type_sizes[num_expr_types];
@@ -86,11 +85,18 @@ struct JS_EXPR {
   expression_type type;
 
   void *data;
-  void *state;
   JS_EXPRS children;
   JS_EXPR *parent;
-  char child_count;
+
+  // TODO:
+  // initial state is 1
+  // terminal states are negative
+  // 0 is a failed state
+  signed char state;
 };
+
+#define TERMINAL_EXPR_STATE(expr) ((expr)->state < 0)
+#define EXPECTANT_EXPR_STATE(expr) (!((expr)->state % 2))
 
 // alloc.c
 JS_STMT *init_statement();
@@ -106,9 +112,6 @@ JS_STMT *pop_statement(JS_STMTS *list);
 JS_EXPR *pop_expression(JS_EXPRS *list);
 void         add_child_expression(JS_EXPR *parent, JS_EXPR *child);
 void add_postfix_child_expression(JS_EXPR *expr,  JS_EXPR *new);
-
-// syntax.c
-// int update_state(JS_EXPR *parent, JS_EXPR *child);
 
 // read.c
 int read_statement(JS_STMT *stmt);

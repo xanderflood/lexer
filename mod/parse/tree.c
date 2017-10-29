@@ -1,4 +1,4 @@
-#include "parse.h"
+#include "local.h"
 
 // TODO: write a `stack.h` and use it to refactor JS_LISTS, JS_EXPRS and TOKEN_STREAM all
 
@@ -40,7 +40,7 @@ JS_EXPR *pop_expression(JS_EXPRS *list) {
   return ret;
 }
 
-static void push_expression(JS_EXPRS *list, JS_EXPR *data) {
+void push_expression(JS_EXPRS *list, JS_EXPR *data) {
   JS_EXPRS e_list = (JS_EXPRS)malloc(sizeof(EXPR_ITEM));
   e_list->next = *list;
   e_list->data = data;
@@ -53,14 +53,19 @@ void add_child_expression(JS_EXPR *parent, JS_EXPR *child) {
   // int ret = update_state(parent, child);
   // if (ret) ; //TODO: fail upwards
 
+  // TODO: confirm that the *current* first child of parent is in a terminal states
+
   push_expression(&parent->children, child);
-  parent->child_count ++;
+  update_state(parent, NULL);
 }
 
 void add_postfix_child_expression(JS_EXPR *expr, JS_EXPR *new) {
   JS_EXPR *child;
-
   child = pop_expression(&expr->children);
+
+  // can't subjugate an unfinished child
+  assert(TERMINAL_EXPR_STATE(child));
+
   add_child_expression(new, child);
-  push_expression(&expr->children, new);
+  add_child_expression(expr, new);
 }
