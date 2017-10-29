@@ -19,38 +19,102 @@ typedef enum {
 } statement_type;
 
 typedef enum {
-  IND_EXPR,       // indeterminate
+  IND_EXPR,     // indeterminate
 
-  ROOT_EXPR,      // placeholder at the top of a statement's expr tree
+  ROOT_EXPR,    // placeholder at the top of a statement's expr tree
 
-  // nouns (leaves)
-  LIT_NUM_EXPR,   // numeric literal
-  LIT_STR_EXPR,   // string literal
-  SYMBOL_EXPR,    // string data
-  DECL_EXPR,      // string data (similar to SYMBOL but declares a )
+  // noun literals (leaves)
+  LIT_NUM_EXPR, // numeric literal
+  LIT_STR_EXPR, // string literal
+  SYMBOL_EXPR,  // string data
+
+  // noun expressions
+  DECL_EXPR,     // string data (similar to SYMBOL but declares a )
+  ARRAY_EXPR,    // arbitrary list of expressions
+  OBJECT_EXPR,   // alternates between symbols and RVALUE types
+  FUNCTION_EXPR, // a function definition
 
   // operations (internal nodes)
-  PAREN_EXPR,        // 1 expr
-  ASSIGN_EXPR,       // 2 arbitrary expressions
-  ASSIGN_PLUS_EXPR,  // 2 arbitrary expressions
-  ASSIGN_TIMES_EXPR, // 2 arbitrary expressions
-  CALL_EXPR,         // children are arbitrary expression followed by a list of arguments
-  FUNCTION_EXPR,     // arbitrary list of statements
-  ARRAY_EXPR,        // arbitrary list of expressions
-  OBJECT_EXPR,       // alternates between symbols and RVALUE types
-  PLUS_EXPR,         // 2 arbitrary expressions
-  POST_INCR_EXPR,    // 1 arbitrary expression
-  PRE_INCR_EXPR,     // 1 arbitrary expression
-  TIMES_EXPR,        // 2 arbitrary expressions
-  EQUALS_EXPR,       // 2 arbitrary expressions
-  LT_EXPR,           // 2 arbitrary expressions
-  GT_EXPR,           // 2 arbitrary expressions
-  LET_EXPR,          // 2 arbitrary expressions
-  GET_EXPR,          // 2 arbitrary expressions
+  PAREN_EXPR,        // (a)
+  ACCESS_EXPR,       // a.b
+  COMP_ACCESS_EXPR,  // a[b]
+  NEW_ARGS_EXPR,     // new a (...)
+  CALL_EXPR,         // a (...)
 
-  COMMA_EXPR         // n arbitrary expressions - evaluates each and then returns the last
+  NEW_EXPR,          // new a
+
+  POST_INCR_EXPR,    // a ++
+  POST_DECR_EXPR,    // a --
+
+  // prefix unary operations
+  NOT_EXPR,          // ! a
+  BITNOT_EXPR,       // ~ a
+  POS_EXPR,          // + a
+  NEG_EXPR,          // - a
+  PRE_INCR_EXPR,     // ++ a
+  PRE_DECR_EXPR,     // -- a
+  TYPEOF_EXPR,       // typdeof a
+  VOID_EXPR,         // void a
+  DELETE_EXPR,       // delete a
+
+  EXP_EXPR,          // a ** b
+
+  TIMES_EXPR,        // a * b
+  QUOT_EXPR,         // a / b
+  MOD_EXPR,          // a % b
+
+  PLUS_EXPR,         // a + b
+  MINUS_EXPR,        // a - b
+
+  BSLEFT_EXPR,       // a << b
+  BSRIGHT_EXPR,      // a >> b
+  UBSRIGHT_EXPR,     // a >>> b
+
+  LT_EXPR,           // a < b
+  GT_EXPR,           // a > b
+  LET_EXPR,          // a <= b
+  GET_EXPR,          // a >= b
+  IN_EXPR,           // a in b
+  INSTANCEOF_EXPR,   // a instanceof b
+
+  EQ_EXPR,           // a == b
+  INEQ_EXPR,         // a != b
+  STRICT_EQ_EXPR,    // a === b
+  STRICT_INEQ_EXPR,  // a !== b
+
+  BAND_EXPR,         // a & b
+
+  BXOR_EXPR,         // a ^ b
+
+  BOR_EXPR,          // a | b
+
+  LAND_EXPR,         // a && b
+
+  LOR_EXPR,          // a || b
+
+  COND_EXPR,         // a ? b : c
+
+  ASSIGN_EXPR,          // a = b
+  ASSIGN_PLUS_EXPR,     // a += b
+  ASSIGN_TIMES_EXPR,    // a *= b
+  ASSIGN_EXP_EXPR,      // a **= b
+  ASSIGN_QUOT_EXPR,     // a /= b
+  ASSIGN_MOD_EXPR,      // a %= b
+  ASSIGN_BSLEFT_EXPR,   // a <<= b
+  ASSIGN_BSRIGHT_EXPR,  // a >>= b
+  ASSIGN_UBSRIGHT_EXPR, // a >>>= b
+  ASSIGN_BAND_EXPR,     // a &= b
+  ASSIGN_BXOR_EXPR,     // a ^= b
+  ASSIGN_BOR_EXPR,      // a |= b
+
+  YIELD_EXPR,           // yield a
+  YIELD_STAR_EXPR,      // yield *a
+
+  SPREAD_EXPR,          // ... a
+
+  COMMA_EXPR            // a, b (valuates to b)
 } expression_type;
-#define num_expr_types 24
+#define num_expr_types 67
 
 #define EXPR_TYPE_VERB(et) ((et >= PAREN_EXPR) && (et <= COMMA_EXPR))
 #define EXPR_TYPE_NOUN(et) (et == LIT_NUM_EXPR || et == LIT_STR_EXPR || et == SYMBOL_EXPR || et == DECL_EXPR)
