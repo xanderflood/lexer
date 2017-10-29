@@ -30,25 +30,35 @@ typedef enum {
   DECL_EXPR,      // string data (similar to SYMBOL but declares a )
 
   // operations (internal nodes)
-  ASSIGN_EXPR,       // two arbitrary expressions
-  ASSIGN_PLUS_EXPR,  // two arbitrary expressions
-  ASSIGN_TIMES_EXPR, // two arbitrary expressions
+  PAREN_EXPR,        // 1 expr
+  ASSIGN_EXPR,       // 2 arbitrary expressions
+  ASSIGN_PLUS_EXPR,  // 2 arbitrary expressions
+  ASSIGN_TIMES_EXPR, // 2 arbitrary expressions
   CALL_EXPR,         // children are arbitrary expression followed by a list of arguments
   FUNCTION_EXPR,     // arbitrary list of statements
   ARRAY_EXPR,        // arbitrary list of expressions
   OBJECT_EXPR,       // alternates between symbols and RVALUE types
-  PLUS_EXPR,         // two arbitrary expressions
-  POST_INCR_EXPR,    // one arbitrary expression
-  PRE_INCR_EXPR,     // one arbitrary expression
-  TIMES_EXPR,        // two arbitrary expressions
-  EQUALS_EXPR,       // two arbitrary expressions
-  LT_EXPR,           // two arbitrary expressions
-  GT_EXPR,           // two arbitrary expressions
-  LET_EXPR,          // two arbitrary expressions
-  GET_EXPR,          // two arbitrary expressions
+  PLUS_EXPR,         // 2 arbitrary expressions
+  POST_INCR_EXPR,    // 1 arbitrary expression
+  PRE_INCR_EXPR,     // 1 arbitrary expression
+  TIMES_EXPR,        // 2 arbitrary expressions
+  EQUALS_EXPR,       // 2 arbitrary expressions
+  LT_EXPR,           // 2 arbitrary expressions
+  GT_EXPR,           // 2 arbitrary expressions
+  LET_EXPR,          // 2 arbitrary expressions
+  GET_EXPR,          // 2 arbitrary expressions
 
-  PAREN_EXPR         // not a real expression, but used while building to keep track of operator precedence
+  COMMA_EXPR         // not a real expression, but used while building to keep track of operator precedence
 } expression_type;
+
+#define EXPR_TYPE_VERB(et) ((et >= PAREN_EXPR) && (et <= COMMA_EXPR))
+#define EXPR_TYPE_NOUN(et) (et == LIT_NUM_EXPR || et == LIT_STR_EXPR || et == SYMBOL_EXPR || et == DECL_EXPR)
+#define EXPR_TYPE_INTERNAL_NODE(et) (EXPR_TYPE_VERB(et) || et == ROOT_EXPR)
+
+#define num_expr_types 23
+
+// a size of 0 means variadic
+const char expression_type_sizes[num_expr_types];
 
 // These structs are connected in complicated ways,
 // so we have to create the names before describing
@@ -76,9 +86,10 @@ struct JS_EXPR {
   expression_type type;
 
   void *data;
+  void *state;
   JS_EXPRS children;
   JS_EXPR *parent;
-  bool unfinished;
+  char child_count;
 };
 
 // alloc.c
@@ -92,9 +103,12 @@ void destroy_expression_list(JS_EXPRS expr);
 // tree.c
 void    push_statement(JS_STMTS *list, JS_STMT *data);
 JS_STMT *pop_statement(JS_STMTS *list);
-void    push_expression(JS_EXPRS *list, JS_EXPR *data);
 JS_EXPR *pop_expression(JS_EXPRS *list);
-void    push_postfix(JS_EXPR *expr, JS_EXPR *new);
+void         add_child_expression(JS_EXPR *parent, JS_EXPR *child);
+void add_postfix_child_expression(JS_EXPR *expr,  JS_EXPR *new);
+
+// syntax.c
+// int update_state(JS_EXPR *parent, JS_EXPR *child);
 
 // read.c
 int read_statement(JS_STMT *stmt);

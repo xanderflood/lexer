@@ -25,14 +25,6 @@ JS_STMT *pop_statement(JS_STMTS *list) {
   return ret;
 }
 
-void push_expression(JS_EXPRS *list, JS_EXPR *data) {
-  JS_EXPRS e_list = (JS_EXPRS)malloc(sizeof(EXPR_ITEM));
-  e_list->next = *list;
-  e_list->data = data;
-
-  *list = e_list;
-}
-
 JS_EXPR *pop_expression(JS_EXPRS *list) {
   JS_EXPR *ret;
   JS_EXPRS old;
@@ -48,10 +40,27 @@ JS_EXPR *pop_expression(JS_EXPRS *list) {
   return ret;
 }
 
-void push_postfix(JS_EXPR *expr, JS_EXPR *new) {
+static void push_expression(JS_EXPRS *list, JS_EXPR *data) {
+  JS_EXPRS e_list = (JS_EXPRS)malloc(sizeof(EXPR_ITEM));
+  e_list->next = *list;
+  e_list->data = data;
+
+  *list = e_list;
+}
+
+void add_child_expression(JS_EXPR *parent, JS_EXPR *child) {
+  // TODO:
+  // int ret = update_state(parent, child);
+  // if (ret) ; //TODO: fail upwards
+
+  push_expression(&parent->children, child);
+  parent->child_count ++;
+}
+
+void add_postfix_child_expression(JS_EXPR *expr, JS_EXPR *new) {
   JS_EXPR *child;
 
   child = pop_expression(&expr->children);
-  push_expression(&new->children, child);
+  add_child_expression(new, child);
   push_expression(&expr->children, new);
 }
