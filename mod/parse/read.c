@@ -1,3 +1,5 @@
+#include "string.h"
+
 #include "parse.h"
 #include "lex.h"
 
@@ -54,15 +56,28 @@ int read_statement(JS_STMT *stmt) {
     }
 
     // nouns
-    // TODO: each one should
-    // (1) build an appropriate leaf node
-    // (2) push onto current
     else if (tok.type == NUM_TOK) {
-      //
+      JS_EXPR *noun = init_expression();
+      noun->type = LIT_NUM_EXPR;
+      noun->data = strdup(tok.s);
+      // TODO: interpret the numeric contents
+
+      push_expression(&current->children, noun);
+      // TODO: seek upwards to the next unfinished node
     } else if (tok.type == LIT_TOK) {
-      //
+      JS_EXPR *noun = init_expression();
+      noun->type = LIT_STR_EXPR;
+      noun->data = strdup(tok.s);
+
+      push_expression(&current->children, noun);
+      // TODO: seek upwards to the next unfinished node
     } else if (tok.type == SYM_TOK) {
-      //
+      JS_EXPR *noun = init_expression();
+      noun->type = SYMBOL_EXPR;
+      noun->data = strdup(tok.s);
+
+      push_expression(&current->children, noun);
+      // TODO: seek upwards to the next unfinished node
     }
 
     // otherwise, errors
