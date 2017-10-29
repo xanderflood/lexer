@@ -89,6 +89,7 @@ void    push_statement(JS_STMTS *list, JS_STMT *data);
 JS_STMT *pop_statement(JS_STMTS *list);
 void    push_expression(JS_EXPRS *list, JS_EXPR *data);
 JS_EXPR *pop_expression(JS_EXPRS *list);
+void    push_postfix(JS_EXPR *expr, JS_EXPR *new);
 
 // read.c
 int read_statement(JS_STMT *stmt);

@@ -47,3 +47,11 @@ JS_EXPR *pop_expression(JS_EXPRS *list) {
 
   return ret;
 }
+
+void push_postfix(JS_EXPR *expr, JS_EXPR *new) {
+  JS_EXPR *child;
+
+  child = pop_expression(&expr->children);
+  push_expression(&new->children, child);
+  push_expression(&expr->children, new);
+}
