@@ -4,6 +4,7 @@ JS_STMT *init_statement() {
   JS_STMT *stmt = (JS_STMT*)malloc(sizeof(JS_STMT));
   stmt->type = IND_STMT;
   stmt->children = NULL;
+  stmt->statements = NULL;
 
   return stmt;
 }
@@ -12,7 +13,6 @@ JS_EXPR *init_expression() {
   JS_EXPR *expr = (JS_EXPR*)malloc(sizeof(JS_EXPR));
   expr->type = IND_EXPR;
   expr->children = NULL;
-  expr->statements = NULL;
 
   return expr;
 }

@@ -3,21 +3,9 @@
 
 #include "shared.h"
 
-// NOTE: It seems to be typical to consider a block
-// as a type of statment rather than as an expression.
-// This makes sense because a block doesn't produce a
-// value, but in my model it is easier to simply consider
-// it as a type of expression that is neither an LVALUE
-// nor an RVALUE, because my expressions have a list of
-// things, and some of them have to be expressions and
-// some of them have to be blocks, so I may as well unify
-// those.
-
 typedef enum {
   IND_STMT,          // indeterminate
-  ASSIGN_STMT,       // 2 exprs linked by  ='s (always LVALUE then RVALUE)
-  ASSIGN_PLUS_STMT,  // 2 exprs linked by *='s (always LVALUE then RVALUE)
-  ASSIGN_TIMES_STMT, // 2 exprs linked by +='s (always LVALUE then RVALUE)
+  EXPR_STMT,         // a statement consisting of just one expression to evaluate
   IF_STMT,           // 1 expr  followed by one or two blocks
   FOR_STMT,          // for (three child expressions followed by a block)
   FOR_IN_STMT,       // for (a in b) (two child expressions and then a block)
@@ -26,28 +14,36 @@ typedef enum {
   DO_WHILE_STMT,     // do {...} while (...) (one block followed by an expression)
   SWITCH_STMT,       // ??
   WITH_STMT,         // one expression then a block
-  TRY_CATCH_STMT     // block, possible expression, then another block
+  TRY_CATCH_STMT,    // block, possible expression, then another block
+  COMPOUND_STMT
 } statement_type;
 
 typedef enum {
   IND_EXPR,       // indeterminate
+
+  // nouns (leaves)
   LIT_NUM_EXPR,   // numeric literal
   LIT_STR_EXPR,   // string literal
-  CALL_EXPR,      // children are arbitrary expression followed by a list of arguments
   SYMBOL_EXPR,    // string data
   DECL_EXPR,      // string data (similar to SYMBOL but declares a )
-  BLOCK_EXPR,     // arbitrary list of statements
-  ARRAY_EXPR,     // arbitrary list of expressions
-  OBJECT_EXPR,    // alternates between symbols and RVALUE types
-  PLUS_EXPR,      // two arbitrary expressions
-  POST_INCR_EXPR, // one arbitrary expression
-  PRE_INCR_EXPR,  // one arbitrary expression
-  TIMES_EXPR,     // two arbitrary expressions
-  EQUALS_EXPR,    // two arbitrary expressions
-  LT_EXPR,        // two arbitrary expressions
-  GT_EXPR,        // two arbitrary expressions
-  LET_EXPR,       // two arbitrary expressions
-  GET_EXPR        // two arbitrary expressions
+
+  // operations (internal nodes)
+  ASSIGN_EXPR,       // two arbitrary expressions
+  ASSIGN_PLUS_EXPR,  // two arbitrary expressions
+  ASSIGN_TIMES_EXPR, // two arbitrary expressions
+  CALL_EXPR,         // children are arbitrary expression followed by a list of arguments
+  FUNCTION_EXPR,     // arbitrary list of statements
+  ARRAY_EXPR,        // arbitrary list of expressions
+  OBJECT_EXPR,       // alternates between symbols and RVALUE types
+  PLUS_EXPR,         // two arbitrary expressions
+  POST_INCR_EXPR,    // one arbitrary expression
+  PRE_INCR_EXPR,     // one arbitrary expression
+  TIMES_EXPR,        // two arbitrary expressions
+  EQUALS_EXPR,       // two arbitrary expressions
+  LT_EXPR,           // two arbitrary expressions
+  GT_EXPR,           // two arbitrary expressions
+  LET_EXPR,          // two arbitrary expressions
+  GET_EXPR           // two arbitrary expressions
 } expression_type;
 
 typedef struct EXPR_ITEM EXPR_ITEM;
@@ -59,15 +55,15 @@ typedef STMT_ITEM* JS_STMTS;
 typedef struct {
   statement_type type;
 
-  JS_EXPRS *children;
+  JS_STMTS children;
+  JS_EXPRS statements;
 } JS_STMT;
 
 typedef struct {
   expression_type type;
 
   void *data;
-  JS_EXPRS *children;
-  JS_STMTS *statements;
+  JS_EXPRS children;
 } JS_EXPR;
 
 struct EXPR_ITEM {
