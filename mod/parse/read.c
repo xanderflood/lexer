@@ -53,10 +53,16 @@ int read_statement(JS_STMT *stmt) {
 
       seek_downwards(&current, opr);
 
-      // TODO: decide whether to insert as a child (as for postfix unary
-      //       operations) or to subjugate the primary child (as for any
+      // TODO: decide whether to insert as a child (as with postfix unary
+      //       operations) or to subjugate the primary child (as with any
       //       operation that *doesn't* start with a signal token, and
       //       actually starts with a child expression.)
+
+      if (expr_type_after_the_fact[
+          expr_type_fmts[opr->type]])
+        add_postfix_child_expression(current, opr);
+      else
+        add_child_expression(current, opr);
 
       // TODO '(' and '[' can be:
       // (1) a leaf, when it opens a parenthizes expression
@@ -91,7 +97,8 @@ int read_statement(JS_STMT *stmt) {
     }
 
     // keywords should not appear while parsing a statement
-    // TODO: except `function`
+    // TODO: except `function` - make function an operation
+    //       instead of a keyword
     else if (tok.type == KEY_TOK)
       return 3; // raise (UNEXPECTED_KEYWORK)
 

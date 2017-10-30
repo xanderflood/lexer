@@ -177,7 +177,7 @@ void    push_statement(JS_STMTS *list, JS_STMT *data);
 JS_STMT *pop_statement(JS_STMTS *list);
 JS_EXPR *pop_expression(JS_EXPRS *list);
 void         add_child_expression(JS_EXPR *parent, JS_EXPR *child);
-void add_postfix_child_expression(JS_EXPR *expr,  JS_EXPR *new);
+void add_postfix_child_expression(JS_EXPR *expr,   JS_EXPR *new);
 
 // read.c
 int read_statement(JS_STMT *stmt);

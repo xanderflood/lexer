@@ -3,33 +3,6 @@
 // each expression_type has an associated
 // expression_format which determines its
 // internal state machine
-typedef enum {
-  INV_EXP_FMT,
-
-  LEAF_EXPR_FMT,
-
-  // simple operation formats
-  ROOT_EXPR_FMT,
-
-  // noun formats
-  VAR_DECL_EXPR_FMT,
-  ARRAY_EXPR_FMT,
-  OBJECT_EXPR_FMT,
-  FCN_DEFN_EXPR_FMT,
-
-  PREFIX_UNOP_EXPR_FMT,
-  POSTFIX_UNOP_EXPR_FMT,
-  INFIX_BINOP_EXPR_FMT,
-
-  PAREN_EXPR_FMT,
-  COMP_ACCESS_EXPR_FMT,
-  NEW_ARGS_EXPR_FMT,
-  FCN_CALL_EXPR_FMT,
-
-  CONF_TRIOP_EXPR_FMT
-} expression_format;
-
-#define num_expression_formats 15
 
 const expression_format expr_type_fmts[num_expr_types] = {
   INV_EXP_FMT,   // IND_EXPR      indeterminate
@@ -183,6 +156,33 @@ const char expr_type_initial_states[num_expression_formats] = {
 void init_state(JS_EXPR *expr) {
   expr->state = expr_type_initial_states[expr->type];
 }
+
+// Tells whether or not an operator expression will be
+// built *after* the first child expression it receives
+// TODO: Any node that becomes a child of a node created *after*
+//       it is declared *finished* and becomes invisible to the
+//       AST building process.
+const bool expr_type_after_the_fact[num_expression_formats] = {
+  false, // LEAF_EXPR_FMT
+
+  false, // ROOT_EXPR_FMT
+
+  false, // VAR_DECL_EXPR_FMT
+  false, // ARRAY_EXPR_FMT
+  false, // OBJECT_EXPR_FMT
+  false, // FCN_DEFN_EXPR_FMT
+
+  false, // PREFIX_UNOP_EXPR_FMT
+  true,  // POSTFIX_UNOP_EXPR_FMT
+  true,  // INFIX_BINOP_EXPR_FMT
+
+  false, // PAREN_EXPR_FMT
+  true,  // COMP_ACCESS_EXPR_FMT
+  false, // NEW_ARGS_EXPR_FMT
+  true,  // FCN_CALL_EXPR_FMT
+
+  true   // CONF_TRIOP_EXPR_FMT
+};
 
 const expression_precedence opr_prec_info[num_expr_types] = {
   INVALID_EXPR_PREC, // IND_EXPR
