@@ -41,3 +41,6 @@ typedef enum {
 } expression_precedence;
 
 const expression_precedence opr_prec_info[num_expr_types];
+
+expression_type interpret_operator_token_as_noun(TOKEN *tok);
+expression_type interpret_operator_token_as_verb(TOKEN *tok);

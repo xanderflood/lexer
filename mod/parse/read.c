@@ -34,6 +34,23 @@ int read_statement(JS_STMT *stmt) {
   current = stmt->expressions->data;
 
   do {
+    // TODO: After a node accepts a signal token, it's first
+    //   child is marked invisible. (In order words, we can't
+    //   descend past it until it accepts a new child.)
+
+    //
+    // NOTE: here, "noun" means inserted as a child, and "verb" means
+    // claiming a child from the syntac tree
+    //
+    // TODO: `current` is always EITHER expectant or non-terminal
+    // No type other than a ROOT_EXPR is ever terminal and expectant at once
+    // (1) If it's expectant, then try to interpret `tok` as a noun.
+    // (2) If it's not expectant, then it's non-terminal, and waiting on signal tokens.
+    // (3) HOWEVER if it is non-expectant, non-terminal AND has
+    //  one visible child and the signal token is rejected, we
+    //  should try to re-interpret it as a verb operating on that child
+    //
+
     // semicolon
     if (tok.type == SMC_TOK) {
       // TODO: check that we have a valid statement and then:
@@ -52,11 +69,6 @@ int read_statement(JS_STMT *stmt) {
       JS_EXPR *opr = init_expression(IND_EXPR);
 
       seek_downwards(&current, opr);
-
-      // TODO: decide whether to insert as a child (as with postfix unary
-      //       operations) or to subjugate the primary child (as with any
-      //       operation that *doesn't* start with a signal token, and
-      //       actually starts with a child expression.)
 
       if (expr_type_after_the_fact[
           expr_type_fmts[opr->type]])
