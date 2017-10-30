@@ -14,4 +14,6 @@ int main(int narg, char **args) {
   do {
     put_token(&ts->data, false);
   } while (!next_token(&ts, 1));
+
+  return 0;
 }

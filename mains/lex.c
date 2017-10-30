@@ -101,4 +101,6 @@ int main(int narg, char **args) {
 
     end_of_token = false;
   }
+
+  return 0;
 }
