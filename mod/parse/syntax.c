@@ -1,5 +1,4 @@
-#include "parse.h"
-#include "lex.h"
+#include "local.h"
 
 // each expression_type has an associated
 // expression_format which determines its
@@ -126,7 +125,7 @@ const expression_format expr_type_fmts[num_expr_types] = {
 
   PREFIX_UNOP_EXPR_FMT, // SPREAD_EXPR           ... a
 
-  INFIX_BINOP_EXPR_FMT // COMMA_EXPR            a, b (valuates to b)
+  INFIX_BINOP_EXPR_FMT  // COMMA_EXPR            a, b (valuates to b)
 };
 
 // `current` has reverted upward to `parent`, meaning
@@ -185,4 +184,96 @@ void init_state(JS_EXPR *expr) {
   expr->state = expr_type_initial_states[expr->type];
 }
 
-// TODO: build an operator-precedence type of array
+const expression_precedence opr_prec_info[num_expr_types] = {
+  INVALID_EXPR_PREC, // IND_EXPR
+
+  LEAF_EXPR_PREC, // ROOT_EXPR
+
+  LEAF_EXPR_FMT, // LIT_NUM_EXPR  numeric literal
+  LEAF_EXPR_FMT, // LIT_STR_EXPR  string literal
+  LEAF_EXPR_FMT, // SYMBOL_EXPR   string data
+
+  CONTAINER_EXPR_PREC, // DECL_EXPR      string data (similar to SYMBOL but declares a )
+  CONTAINER_EXPR_PREC, // ARRAY_EXPR     arbitrary list of expressions
+  CONTAINER_EXPR_PREC, // OBJECT_EXPR    alternates between symbols and RVALUE types
+  CONTAINER_EXPR_PREC, // FUNCTION_EXPR  a function definition
+
+  20, // PAREN_EXPR         (a)
+
+  19, // ACCESS_EXPR        a.b
+  19, // COMP_ACCESS_EXPR   a[b]
+  19, // NEW_ARGS_EXPR      new a (b, ...)
+  19, // CALL_EXPR          a(...)
+
+  18, // NEW_EXPR           new a
+
+  17, // POST_INCR_EXPR     a ++
+  17, // POST_DECR_EXPR     a --
+
+  16, // NOT_EXPR           ! a
+  16, // BITNOT_EXPR        ~ a
+  16, // POS_EXPR           + a
+  16, // NEG_EXPR           - a
+  16, // PRE_INCR_EXPR      ++ a
+  16, // PRE_DECR_EXPR      -- a
+  16, // TYPEOF_EXPR        typdeof a
+  16, // VOID_EXPR          void a
+  16, // DELETE_EXPR        delete a
+
+  15, // EXP_EXPR           a ** b
+
+  14, // TIMES_EXPR         a * b
+  14, // QUOT_EXPR          a / b
+  14, // MOD_EXPR           a % b
+
+  13, // PLUS_EXPR          a + b
+  13, // MINUS_EXPR         a - b
+
+  12, // BSLEFT_EXPR        a << b
+  12, // BSRIGHT_EXPR       a >> b
+  12, // UBSRIGHT_EXPR      a >>> b
+
+  11, // LT_EXPR            a < b
+  11, // GT_EXPR            a > b
+  11, // LET_EXPR           a <= b
+  11, // GET_EXPR           a >= b
+  11, // IN_EXPR            a in b
+  11, // INSTANCEOF_EXPR    a instanceof b
+
+  10, // EQ_EXPR            a == b
+  10, // INEQ_EXPR          a != b
+  10, // STRICT_EQ_EXPR     a === b
+  10, // STRICT_INEQ_EXPR   a !== b
+
+  9,  // BAND_EXPR          a & b
+
+  8,  // BXOR_EXPR          a ^ b
+
+  7,  // BOR_EXPR           a | b
+
+  6,  // LAND_EXPR          a && b
+
+  5,  // LOR_EXPR           a || b
+
+  4,  // COND_EXPR          a ? b : c
+
+  3,  // ASSIGN_EXPR           a = b
+  3,  // ASSIGN_PLUS_EXPR      a += b
+  3,  // ASSIGN_TIMES_EXPR     a *= b
+  3,  // ASSIGN_EXP_EXPR       a **= b
+  3,  // ASSIGN_QUOT_EXPR      a /= b
+  3,  // ASSIGN_MOD_EXPR       a %= b
+  3,  // ASSIGN_BSLEFT_EXPR    a <<= b
+  3,  // ASSIGN_BSRIGHT_EXPR   a >>= b
+  3,  // ASSIGN_UBSRIGHT_EXPR  a >>>= b
+  3,  // ASSIGN_BAND_EXPR      a &= b
+  3,  // ASSIGN_BXOR_EXPR      a ^= b
+  3,  // ASSIGN_BOR_EXPR       a |= b
+
+  2,  // YIELD_EXPR            yield a
+  2,  // YIELD_STAR_EXPR       yield *a
+
+  1,  // SPREAD_EXPR           ... a
+
+  0   // COMMA_EXPR            a, b (valuates to b)
+};

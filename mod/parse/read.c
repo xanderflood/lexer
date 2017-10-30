@@ -10,7 +10,7 @@ static int seek_upwards(JS_EXPR **current);
 // seek downwards as much as possible, minding operator precedence
 // (never descends past parentheses)
 // ** Used when inserting an operation
-static int seek_downwards(JS_EXPR **current, JS_EXPR *opr);
+static void seek_downwards(JS_EXPR **current, JS_EXPR *opr);
 
 // returns:
 //   0 OK
@@ -44,12 +44,21 @@ int read_statement(JS_STMT *stmt) {
     // verbs
     // TODO: always set `current` to point to this new node
     //       then, seek upwards, in case the new node is already finished (as in `a++;`)
-    else if (tok.type == OPR_TOK) {
-      // TODO
-      // (1) seek down according to operator precedence
-      // (2) postfix_push this node in
-    } else if (tok.type == PNC_TOK && tok.s[0] == '(') {
-      // TODO '(' can be:
+    else if (tok.type == OPR_TOK ||
+            (tok.type == PNC_TOK && (tok.s[0] == '(' || tok.s[0] == '['))) {
+
+      // TODO: implement `operator_type(&tok)` to convert a token into an operation expression_type
+      // JS_EXPR *noun = init_expression(operator_type(&tok));
+      JS_EXPR *opr = init_expression(IND_EXPR);
+
+      seek_downwards(&current, opr);
+
+      // TODO: decide whether to insert as a child (as for postfix unary
+      //       operations) or to subjugate the primary child (as for any
+      //       operation that *doesn't* start with a signal token, and
+      //       actually starts with a child expression.)
+
+      // TODO '(' and '[' can be:
       // (1) a leaf, when it opens a parenthizes expression
       // (2) an operation, when it signals a function call
 
@@ -57,7 +66,7 @@ int read_statement(JS_STMT *stmt) {
       // non-terminal like an unclosed parenthetical) then it *must* be
       // a function call, since function call is in the highet precedence
       // class below parentheticals.
-    } else if (tok.type == PNC_TOK && tok.s[0] == '[') {
+
       // same here: it can be a member access (which ties with function call
       // for second-highest precedence class), or it can be an array definition.
     }
@@ -107,4 +116,20 @@ static int seek_upwards(JS_EXPR **current) {
   }
 
   return (INVALID_EXPR_STATE(*current));
+}
+
+// A larger value of opr_prec_info means that
+// it will burrow *deeper* before pulling
+static void seek_downwards(JS_EXPR **current, JS_EXPR *opr) {
+  JS_EXPR *target = *current;
+
+  assert(opr_prec_info[opr->type] >= 0);
+
+  while (opr_prec_info[opr->type] > opr_prec_info[target->type]) {
+    assert(opr_prec_info[target->type] >= 0);
+
+    target = (*current)->children->data;
+  }
+
+  *current = target;
 }
