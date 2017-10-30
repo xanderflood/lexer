@@ -14,6 +14,8 @@ typedef enum {
   NUM_TOK = 4, // number literal
   LIT_TOK = 5, // string literal
 
+  // TODO: should OPR_TOK, PNC_TOK, and SMC_TOK all be merged?
+
   PNC_TOK = 6, // punctuation (grouping)
   SMC_TOK = 7, // semicolon
 
