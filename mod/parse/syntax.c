@@ -88,8 +88,7 @@ int update_state(JS_EXPR *parent, TOKEN *new) {
   assert (EXPR_TYPE_INTERNAL_NODE(parent));
 
   // if the new token is NULL, then this function
-  // is being called because `parent`s first child
-  // has now reached a terminal state
+  // is being called because `parent` has a new child
   if (!new) {
   }
 

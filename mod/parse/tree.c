@@ -53,7 +53,7 @@ void add_child_expression(JS_EXPR *parent, JS_EXPR *child) {
   // int ret = update_state(parent, child);
   // if (ret) ; //TODO: fail upwards
 
-  // TODO: confirm that the *current* first child of parent is in a terminal states
+  // TODO: confirm that the *current* first child of parent is in a terminal state
 
   push_expression(&parent->children, child);
   update_state(parent, NULL);
