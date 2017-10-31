@@ -119,7 +119,7 @@ const char expr_type_initial_states[num_expression_formats] = {
   2,  // FCN_DEFN_EXPR_FMT
 
   2,  // PREFIX_UNOP_EXPR_FMT
-  -1, // POSTFIX_UNOP_EXPR_FMT
+  -2, // POSTFIX_UNOP_EXPR_FMT
   2,  // INFIX_BINOP_EXPR_FMT
 
   2,  // PAREN_EXPR_FMT
