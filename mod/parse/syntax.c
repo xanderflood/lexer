@@ -9,7 +9,7 @@
 // internal state machine
 
 const expression_format expr_type_fmts[num_expr_types] = {
-  INV_EXP_FMT,   // IND_EXPR      indeterminate
+  INV_EXPR_FMT,   // IND_EXPR      indeterminate
   ROOT_EXPR_FMT, // ROOT_EXPR     placeholder at the top of a statement's expr tree
   LEAF_EXPR_FMT, // LIT_NUM_EXPR  numeric literal
   LEAF_EXPR_FMT, // LIT_STR_EXPR  string literal
@@ -78,24 +78,129 @@ const expression_format expr_type_fmts[num_expr_types] = {
   INFIX_BINOP_EXPR_FMT  // COMMA_EXPR            a, b (valuates to b)
 };
 
-// `current` has reverted upward to `parent`, meaning
-// then all of `parent`s children have a terminal state
-// now. A new token appears, and `parent` must tell us
-// how to handle it.
-
-// return 0 if the token was not useful (propogate the token  )
-int update_state(JS_EXPR *parent, TOKEN *new) {
-  assert (EXPR_TYPE_INTERNAL_NODE(parent));
+// return 0 if the token was consumed
+int update_state(JS_EXPR *current, TOKEN *tok) {
+  assert (EXPR_TYPE_INTERNAL_NODE(current));
 
   // if the new token is NULL, then this function
-  // is being called because `parent` has a new child
-  if (!new) {
-  }
+  // is being called because `current` has a new child
 
-  // otherwise, parent's primary child became terminal
+  // otherwise, current's primary child became terminal
   // in a previous step, and this is being called because
   // of a new token, such as a comma or close paren
-  else {
+
+  // TOOD: most of these asserts should be]
+  //   if/elses with syntax error return codes
+  if (INV_EXPR_FMT)
+    assert(0);
+
+  else if (LEAF_EXPR_FMT)
+    assert(0);
+
+  else if (ROOT_EXPR_FMT) {
+    assert (tok == NULL);
+    current->state = -1;
+  }
+
+  else if (VAR_DECL_EXPR_FMT) {
+    assert (tok == NULL);
+    current->state = -1;
+  }
+
+  else if (ARRAY_EXPR_FMT) {
+    if (current->state == 2) {
+      assert (tok == NULL);
+      current->state = 1;
+    } else if (current->state == 1) {
+      if (! strcmp(tok->s, ","))
+        current->state = 2;
+      else if (! strcmp(tok->s, "]"))
+        current->state = -1;
+      else
+        return -1; // raise EXPECTED_COMMA_OR_RSQBRACK
+    } else {
+      assert(0);
+    }
+  }
+
+  else if (OBJECT_EXPR_FMT) {
+  }
+
+  else if (FCN_DEFN_EXPR_FMT) {
+  }
+
+  else if (PREFIX_UNOP_EXPR_FMT) {
+    assert (current->state == 2);
+    current->state = -1;
+  }
+
+  else if (POSTFIX_UNOP_EXPR_FMT) {
+    assert (current->state == 2);
+    current->state = -1;
+  }
+
+  else if (INFIX_BINOP_EXPR_FMT) {
+    assert (tok == NULL);
+
+    if (current->state == 2)
+      current->state = 4;
+    else if (current->state == 4)
+      current->state = -1;
+    else
+      assert (0);
+  }
+
+  else if (PAREN_EXPR_FMT) {
+    if (current->state == 2) {
+      assert (tok == NULL);
+      current->state = 1;
+    } else if (current->state == 1) {
+      if (! strcmp(tok->s, ")"))
+        current->state = -1;
+      else
+        return -1;// raise EXPECTED_RPAREN
+    } else
+      assert(current->state == -1);
+  }
+
+  else if (COMP_ACCESS_EXPR_FMT) {
+    if (current->state == 2) {
+      assert (tok == NULL);
+      current->state = 1;
+    } else if (current->state == 1) {
+      if (! strcmp(tok->s, "]"))
+        current->state = -1;
+      else
+        return -2; // raise EXPECTED_OR_RSQBRACK
+    } else {
+      assert(0);
+    }
+  }
+
+  else if (NEW_ARGS_EXPR_FMT) {
+  }
+
+  else if (FCN_CALL_EXPR_FMT) {
+  }
+
+  else if (CONF_TRIOP_EXPR_FMT) {
+    if (current->state == 2) {
+      assert (tok == NULL);
+      current->state = 4;
+    } else if (current->state == 4) {
+      assert (tok == NULL);
+      current->state = 1;
+    } else if (current->state == 1) {
+      if (! strcmp(tok->s, ":"))
+        current->state = 6;
+      else
+        return -1; // raise EXPECTED_COLON
+    } else if (current->state == 6) {
+      assert (tok == NULL);
+      current->state = -1;
+    } else {
+      assert(0);
+    }
   }
 
   // TODO: implement
@@ -109,6 +214,8 @@ int update_state(JS_EXPR *parent, TOKEN *new) {
 //  1 = waiting on signal tokens before expecting children
 //  2 = initally expectant and non-terminal
 const char expr_type_initial_states[num_expression_formats] = {
+  0,  // INV_EXPR_FMT,
+
   -1, // LEAF_EXPR_FMT
 
   -2, // ROOT_EXPR_FMT
@@ -119,7 +226,7 @@ const char expr_type_initial_states[num_expression_formats] = {
   2,  // FCN_DEFN_EXPR_FMT
 
   2,  // PREFIX_UNOP_EXPR_FMT
-  -2, // POSTFIX_UNOP_EXPR_FMT
+  2,  // POSTFIX_UNOP_EXPR_FMT
   2,  // INFIX_BINOP_EXPR_FMT
 
   2,  // PAREN_EXPR_FMT
@@ -141,6 +248,7 @@ void init_state(JS_EXPR *expr) {
 //       it is declared *finished* and becomes invisible to the
 //       AST building process.
 const bool expr_type_after_the_fact[num_expression_formats] = {
+  -1,    // INV_EXPR_FMT
   false, // LEAF_EXPR_FMT
   false, // ROOT_EXPR_FMT
   false, // VAR_DECL_EXPR_FMT

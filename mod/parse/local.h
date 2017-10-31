@@ -9,7 +9,7 @@ int update_state(JS_EXPR *parent, TOKEN *new);
 void init_state(JS_EXPR *expr);
 
 typedef enum {
-  INV_EXP_FMT,
+  INV_EXPR_FMT,
   LEAF_EXPR_FMT,
   ROOT_EXPR_FMT,
 
