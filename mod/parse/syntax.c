@@ -1,6 +1,9 @@
 #include "local.h"
 #include "string.h"
 
+// TODO: Unify these parallel arrays into
+//       one arary of structures
+
 // each expression_type has an associated
 // expression_format which determines its
 // internal state machine
