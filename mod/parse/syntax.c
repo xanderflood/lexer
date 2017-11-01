@@ -99,12 +99,12 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
 
   else if (ROOT_EXPR_FMT) {
     assert (tok == NULL);
-    current->state = -1;
+    current->state = -3;
   }
 
   else if (VAR_DECL_EXPR_FMT) {
     assert (tok == NULL);
-    current->state = -1;
+    current->state = -3;
   }
 
   else if (ARRAY_EXPR_FMT) {
@@ -131,7 +131,7 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
 
   else if (PREFIX_UNOP_EXPR_FMT) {
     assert (current->state == 2);
-    current->state = -1;
+    current->state = -3;
   }
 
   else if (POSTFIX_UNOP_EXPR_FMT) {
@@ -145,7 +145,7 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
     if (current->state == 2)
       current->state = 4;
     else if (current->state == 4)
-      current->state = -1;
+      current->state = -3;
     else
       assert (0);
   }
@@ -153,20 +153,20 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
   else if (PAREN_EXPR_FMT) {
     if (current->state == 2) {
       assert (tok == NULL);
-      current->state = 1;
+      current->state = 3;
     } else if (current->state == 1) {
       if (! strcmp(tok->s, ")"))
         current->state = -1;
       else
         return -1;// raise EXPECTED_RPAREN
     } else
-      assert(current->state == -1);
+      assert(0);
   }
 
   else if (COMP_ACCESS_EXPR_FMT) {
     if (current->state == 2) {
       assert (tok == NULL);
-      current->state = 1;
+      current->state = 3;
     } else if (current->state == 1) {
       if (! strcmp(tok->s, "]"))
         current->state = -1;
@@ -189,15 +189,15 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
       current->state = 4;
     } else if (current->state == 4) {
       assert (tok == NULL);
-      current->state = 1;
+      current->state = 3;
     } else if (current->state == 1) {
       if (! strcmp(tok->s, ":"))
-        current->state = 6;
+        current->state = 8;
       else
         return -1; // raise EXPECTED_COLON
-    } else if (current->state == 6) {
+    } else if (current->state == 8) {
       assert (tok == NULL);
-      current->state = -1;
+      current->state = -3;
     } else {
       assert(0);
     }
@@ -213,6 +213,7 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
 //  0 = invalid
 //  1 = waiting on signal tokens before expecting children
 //  2 = initally expectant and non-terminal
+//  multiples of 3 have a visible child, others do not
 const char expr_type_initial_states[num_expression_formats] = {
   0,  // INV_EXPR_FMT,
 
@@ -354,7 +355,7 @@ expression_type interpret_token_as_verb(TOKEN *tok) {
     return PAREN_EXPR;       // (a)
   else if (tok->type == OPR_TOK && strcmp(tok->s, "new"))
     return NEW_ARGS_EXPR;    // new a (b, ...)
-                       // TODO: new a
+                             // TODO: new a
   else if (tok->type == OPR_TOK && strcmp(tok->s, "!"))
     return NOT_EXPR;         // ! a
   else if (tok->type == OPR_TOK && strcmp(tok->s, "~"))
@@ -388,10 +389,10 @@ expression_type interpret_token_as_noun(TOKEN *tok) {
 
   if (tok->type == OPR_TOK && strcmp(tok->s, "."))
     return ACCESS_EXPR;          // a.b
-  else if (tok->type == OPR_TOK && strcmp(tok->s, "b"))
+  else if (tok->type == OPR_TOK && strcmp(tok->s, "["))
     return COMP_ACCESS_EXPR;      // a[b]
-  else if (tok->type == OPR_TOK && strcmp(tok->s, "..."))
-    return CALL_EXPR;             // a(...)
+  else if (tok->type == OPR_TOK && strcmp(tok->s, "("))
+    return CALL_EXPR;             // a (...)
   else if (tok->type == OPR_TOK && strcmp(tok->s, "++"))
     return POST_INCR_EXPR;        // a ++
   else if (tok->type == OPR_TOK && strcmp(tok->s, "--"))
@@ -470,7 +471,7 @@ expression_type interpret_token_as_noun(TOKEN *tok) {
     return ASSIGN_BXOR_EXPR;      // a ^= b
   else if (tok->type == OPR_TOK && strcmp(tok->s, "|="))
     return ASSIGN_BOR_EXPR;       // a |= b
-  else if (tok->type == OPR_TOK && strcmp(tok->s, ","))
+  else if (tok->type == PNC_TOK && strcmp(tok->s, ","))
     return COMMA_EXPR;            // a, b (valuates to b)
   else
     return IND_EXPR;

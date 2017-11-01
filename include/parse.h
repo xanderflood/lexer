@@ -159,10 +159,12 @@ struct JS_EXPR {
   signed char state;
 };
 
-#define INVALID_EXPR_STATE(expr)   (!!(expr))
-#define TERMINAL_EXPR_STATE(expr)  ((expr)->state < 0)
-#define FINISHED_EXPR_STATE(expr)  (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr))
-#define EXPECTANT_EXPR_STATE(expr) (!((expr)->state % 2))
+#define INVALID_EXPR_STATE(expr)     (!!(expr))
+#define BOTTOM_EXPR_STATE(expr)      (!(expr % 3))
+#define TERMINAL_EXPR_STATE(expr)    ((expr)->state < 0)
+#define FINISHED_EXPR_STATE(expr)    (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr))
+#define EXPECTANT_EXPR_STATE(expr)   (!((expr)->state % 2))
+#define EXPECTING_SIGNAL_STATE(expr) (!EXPECTANT_EXPR_STATE(expr) && !TERMINAL_EXPR_STATE(expr))
 
 // alloc.c
 JS_STMT *init_statement();
