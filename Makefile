@@ -1,4 +1,4 @@
-COMPILE=gcc -ggdb3 -O0 -fPIC -Wall -I include/ -Wpedantic -std=c99 $(FLAGS)
+COMPILE=gcc -ggdb3 -O0 -fPIC -Wall -I include/ $(FLAGS)
 
 all: lex-main parse-main
 
