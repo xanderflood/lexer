@@ -91,116 +91,158 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
 
   // TOOD: most of these asserts should be]
   //   if/elses with syntax error return codes
-  if (INV_EXPR_FMT)
+  expression_format ef = expr_type_fmts[current->type];
+  if (ef == INV_EXPR_FMT)
     assert(0);
 
-  else if (LEAF_EXPR_FMT)
+  else if (ef == LEAF_EXPR_FMT)
     assert(0);
 
-  else if (ROOT_EXPR_FMT) {
-    assert (tok == NULL);
-    current->state = -3;
-  }
-
-  else if (VAR_DECL_EXPR_FMT) {
-    assert (tok == NULL);
-    current->state = -3;
-  }
-
-  else if (ARRAY_EXPR_FMT) {
-    if (current->state == 2) {
-      assert (tok == NULL);
-      current->state = 1;
-    } else if (current->state == 1) {
-      if (! strcmp(tok->s, ","))
-        current->state = 2;
-      else if (! strcmp(tok->s, "]"))
-        current->state = -1;
+  else if (ef == ROOT_EXPR_FMT) {
+    if (tok == NULL) {
+      if (current->state == NTERM_CS_EXST)
+        current->state = NTERM_SV_EXST;
       else
-        return -1; // raise EXPECTED_COMMA_OR_RSQBRACK
+        return -1; // raise(EXPECTED_EXPRESSION);
+    } else {
+      if (! strcmp(tok->s, ";")) {
+        if (EXPECTING_SIGNAL_STATE(current))
+          current->state = FINISHED_EXST;
+        else
+          return -1; // raise(UNEXPECTED_TOKEN);
+      } else
+        return -1; // raise(EXPECTED_SEMICOLON);
+      }
+  }
+
+  else if (ef == VAR_DECL_EXPR_FMT) {
+    if (current->state == NTERM_C_EXST) {
+      if (tok)
+        return -1; // raise UNEXPECTED_TOKEN
+      else
+        current->state = FINISHED_VIS_EXST;
     } else {
       assert(0);
     }
   }
 
-  else if (OBJECT_EXPR_FMT) {
+  else if (ef == ARRAY_EXPR_FMT) {
+    if (current->state == NTERM_C_EXST) {
+      if (tok)
+        return -1; //raise UNEXPECTED_TOKEN
+      else
+        current->state = NTERM_SV_EXST;
+    } else if (current->state == NTERM_SV_EXST) {
+      if (! strcmp(tok->s, ","))
+        current->state = NTERM_C_EXST;
+      else if (! strcmp(tok->s, "]"))
+        current->state = FINISHED_EXST;
+      else
+        return -1; // raise EXPECTED_COMMA_OR_RSQBRACK
+    } else
+      assert(0);
   }
 
-  else if (FCN_DEFN_EXPR_FMT) {
+  else if (ef == OBJECT_EXPR_FMT) {
   }
 
-  else if (PREFIX_UNOP_EXPR_FMT) {
-    assert (current->state == 2);
-    current->state = -3;
+  else if (ef == FCN_DEFN_EXPR_FMT) {
   }
 
-  else if (POSTFIX_UNOP_EXPR_FMT) {
-    assert (current->state == 2);
-    current->state = -1;
+  else if (ef == PREFIX_UNOP_EXPR_FMT) {
+    if(current->state == NTERM_C_EXST) {
+      if (tok)
+        return -1; //raise UNEXPECTED_TOKEN
+      else
+        current->state = FINISHED_VIS_EXST;
+    }
   }
 
-  else if (INFIX_BINOP_EXPR_FMT) {
-    assert (tok == NULL);
-
-    if (current->state == 2)
-      current->state = 4;
-    else if (current->state == 4)
-      current->state = -3;
-    else
-      assert (0);
+  else if (ef == POSTFIX_UNOP_EXPR_FMT) {
+    if(current->state == NTERM_C_EXST) {
+      if (tok)
+        return -1; //raise UNEXPECTED_TOKEN
+      else
+        current->state = FINISHED_EXST;
+    }
   }
 
-  else if (PAREN_EXPR_FMT) {
-    if (current->state == 2) {
-      assert (tok == NULL);
-      current->state = 3;
-    } else if (current->state == 1) {
+  else if (ef == INFIX_BINOP_EXPR_FMT) {
+    if(current->state == NTERM_C_EXST && current->child_count == 0) {
+      if (tok)
+        return -1; //raise UNEXPECTED_TOKEN
+    } else if(current->state == NTERM_C_EXST && current->child_count == 1) {
+      if (tok)
+        return -1; //raise UNEXPECTED_TOKEN
+      else
+        current->state = FINISHED_VIS_EXST;
+    }
+  }
+
+  else if (ef == PAREN_EXPR_FMT) {
+    if (current->state == NTERM_C_EXST) {
+      if (tok)
+        return -1;
+      else
+        current->state = NTERM_SV_EXST;
+    } else if (current->state == NTERM_SV_EXST) {
       if (! strcmp(tok->s, ")"))
-        current->state = -1;
+        current->state = FINISHED_EXST;
       else
         return -1;// raise EXPECTED_RPAREN
     } else
       assert(0);
   }
 
-  else if (COMP_ACCESS_EXPR_FMT) {
-    if (current->state == 2) {
-      assert (tok == NULL);
-      current->state = 3;
-    } else if (current->state == 1) {
-      if (! strcmp(tok->s, "]"))
-        current->state = -1;
+  else if (ef == COMP_ACCESS_EXPR_FMT) {
+    if (current->state == NTERM_C_EXST && current->child_count == 0) {
+      if (tok)
+        return -1;
       else
-        return -2; // raise EXPECTED_OR_RSQBRACK
-    } else {
+        current->state = NTERM_C_EXST;
+    } else if (current->state == NTERM_C_EXST && current->child_count == 1) {
+      if (tok)
+        return -1;
+      else
+        current->state = NTERM_SV_EXST;
+    } else if (current->state == NTERM_SV_EXST) {
+      if (! strcmp(tok->s, "]"))
+        current->state = FINISHED_EXST;
+      else
+        assert(0);
+    } else
       assert(0);
-    }
   }
 
-  else if (NEW_ARGS_EXPR_FMT) {
+  else if (ef == NEW_ARGS_EXPR_FMT) {
   }
 
-  else if (FCN_CALL_EXPR_FMT) {
+  else if (ef == FCN_CALL_EXPR_FMT) {
   }
 
-  else if (CONF_TRIOP_EXPR_FMT) {
-    if (current->state == 2) {
-      assert (tok == NULL);
-      current->state = 4;
-    } else if (current->state == 4) {
-      assert (tok == NULL);
-      current->state = 3;
-    } else if (current->state == 1) {
+  else if (ef == CONF_TRIOP_EXPR_FMT) {
+    if (current->state == NTERM_C_EXST && current->child_count == 0) {
+      if (tok)
+        return -1;
+      else
+        current->state = NTERM_C_EXST;
+    } else if (current->state == NTERM_C_EXST && current->child_count == 1) {
+      if (tok)
+        return -1;
+      else
+        current->state = NTERM_SV_EXST;
+    } else if (current->state == NTERM_SV_EXST) {
       if (! strcmp(tok->s, ":"))
-        current->state = 8;
+        current->state = NTERM_C_EXST;
       else
         return -1; // raise EXPECTED_COLON
-    } else if (current->state == 8) {
-      assert (tok == NULL);
-      current->state = -3;
-    } else {
+    } else if (current->state == NTERM_C_EXST && current->child_count == 2) {
+      if (tok)
+        return -1;
+      else
+        current->state = FINISHED_VIS_EXST;
+    } else
       assert(0);
-    }
   }
 
   // TODO: implement
@@ -213,29 +255,29 @@ int update_state(JS_EXPR *current, TOKEN *tok) {
 //  0 = invalid
 //  1 = waiting on signal tokens before expecting children
 //  2 = initally expectant and non-terminal
-//  multiples of 3 have a visible child, others do not
+
 const char expr_type_initial_states[num_expression_formats] = {
-  0,  // INV_EXPR_FMT,
+  INVALID_EXST,  // INV_EXPR_FMT,
 
-  -1, // LEAF_EXPR_FMT
+  FINISHED_EXST, // LEAF_EXPR_FMT
 
-  -2, // ROOT_EXPR_FMT
+  NTERM_CS_EXST, // ROOT_EXPR_FMT
 
-  2,  // VAR_DECL_EXPR_FMT
-  2,  // ARRAY_EXPR_FMT
-  2,  // OBJECT_EXPR_FMT
-  2,  // FCN_DEFN_EXPR_FMT
+  NTERM_C_EXST,  // VAR_DECL_EXPR_FMT
+  NTERM_CS_EXST, // ARRAY_EXPR_FMT
+  NTERM_CS_EXST, // OBJECT_EXPR_FMT
+  NTERM_C_EXST,  // FCN_DEFN_EXPR_FMT
 
-  2,  // PREFIX_UNOP_EXPR_FMT
-  2,  // POSTFIX_UNOP_EXPR_FMT
-  2,  // INFIX_BINOP_EXPR_FMT
+  NTERM_C_EXST,  // PREFIX_UNOP_EXPR_FMT
+  NTERM_C_EXST,  // POSTFIX_UNOP_EXPR_FMT
+  NTERM_C_EXST,  // INFIX_BINOP_EXPR_FMT
 
-  2,  // PAREN_EXPR_FMT
-  2,  // COMP_ACCESS_EXPR_FMT
-  2,  // NEW_ARGS_EXPR_FMT
-  2,  // FCN_CALL_EXPR_FMT
+  NTERM_C_EXST,  // PAREN_EXPR_FMT
+  NTERM_C_EXST,  // COMP_ACCESS_EXPR_FMT
+  NTERM_C_EXST,  // NEW_ARGS_EXPR_FMT
+  NTERM_C_EXST,  // FCN_CALL_EXPR_FMT
 
-  2  // CONF_TRIOP_EXPR_FMT
+  NTERM_C_EXST   // CONF_TRIOP_EXPR_FMT
 };
 
 // does it start expecting a child or no?

@@ -120,6 +120,37 @@ typedef enum {
 #define EXPR_TYPE_NOUN(et) (et == LIT_NUM_EXPR || et == LIT_STR_EXPR || et == SYMBOL_EXPR || et == DECL_EXPR)
 #define EXPR_TYPE_INTERNAL_NODE(expr) (EXPR_TYPE_VERB((expr)->type) || (expr)->type == ROOT_EXPR)
 
+// 0 is invalid
+// negative states are potentially terminal
+// multiples of 2 will accept a new child
+// multiples of 3 have a visible child
+// multiples of 5 will accept a signal token
+typedef enum {
+  INVALID_EXST = 0,
+
+  FINISHED_EXST = -1,   // totally finished
+  FINISHED_VIS_EXST = -3,   // finished, but it's leading child is still visible and open to manipulation
+  TERM_C_EXST = -2,         // will accept a child
+  TERM_S_EXST = -5,         // will accept a signal token
+  // TERM_CV_EXST = -6,     // NEVER USED in JS (In Ruby, for instance, this is used to do paren-less function calls)
+  // TERM_CS_EXST = -10,    // NEVER USED
+
+  // NTERM_EXST = 1,    // impossible since it won't accept anything
+  NTERM_C_EXST = 2,     // will accept a child
+  NTERM_V_EXST = 3,     // has a visible child
+  NTERM_S_EXST = 5,     // will accept a signal token
+  // NTERM_CV_EXST = 6, // NEVER USED in JS
+  NTERM_CS_EXST = 10,   // will accept child or signal
+  NTERM_SV_EXST = 15,   // has a visible child and will accept a signal token 
+} expression_state;
+
+#define TERMINAL_EXPR_STATE(expr)    ((expr)->state < 0)
+#define INVALID_EXPR_STATE(expr)     ((expr)->state == 0)
+#define EXPECTANT_EXPR_STATE(expr)   ((expr)->state % 2 == 0)
+#define VIS_CHILD_EXPR_STATE(expr)   ((expr)->state % 3 == 0)
+#define EXPECTING_SIGNAL_STATE(expr) ((expr)->state % 5 == 0)
+#define FINISHED_EXPR_STATE(expr)    (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr) && !EXPECTING_SIGNAL_STATE(expr))
+
 // a size of 0 means variadic
 const char expression_type_sizes[num_expr_types];
 
@@ -156,15 +187,9 @@ struct JS_EXPR {
   // initial state is 1
   // terminal states are negative
   // 0 is a failed state
-  signed char state;
+  expression_state state;
+  int child_count;
 };
-
-#define INVALID_EXPR_STATE(expr)     (!!(expr))
-#define BOTTOM_EXPR_STATE(expr)      (!(expr % 3))
-#define TERMINAL_EXPR_STATE(expr)    ((expr)->state < 0)
-#define FINISHED_EXPR_STATE(expr)    (TERMINAL_EXPR_STATE(expr) && !EXPECTANT_EXPR_STATE(expr))
-#define EXPECTANT_EXPR_STATE(expr)   (!((expr)->state % 2))
-#define EXPECTING_SIGNAL_STATE(expr) (!EXPECTANT_EXPR_STATE(expr) && !TERMINAL_EXPR_STATE(expr))
 
 // alloc.c
 JS_STMT *init_statement();

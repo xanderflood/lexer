@@ -19,6 +19,7 @@ JS_EXPR *init_expression(expression_type t) {
   expr->children = NULL;
   expr->parent   = NULL;
   expr->state    = 0;
+  expr->child_count = 0;
 
   expr->type = t;
   init_state(expr);
