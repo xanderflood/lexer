@@ -25,7 +25,7 @@ JS_STMT *pop_statement(JS_STMTS *list) {
   return ret;
 }
 
-JS_EXPR *pop_expression(JS_EXPRS *list) {
+static JS_EXPR *pop_expression(JS_EXPRS *list) {
   JS_EXPR *ret;
   JS_EXPRS old;
 
@@ -40,6 +40,13 @@ JS_EXPR *pop_expression(JS_EXPRS *list) {
   return ret;
 }
 
+JS_EXPR *pop_first_child(JS_EXPR *parent) {
+  assert(VIS_CHILD_EXPR_STATE(parent));
+
+  parent->child_count --;
+  return pop_expression(&parent->children);
+}
+
 void push_expression(JS_EXPRS *list, JS_EXPR *data) {
   JS_EXPRS e_list = (JS_EXPRS)malloc(sizeof(EXPR_ITEM));
   e_list->next = *list;
@@ -49,19 +56,16 @@ void push_expression(JS_EXPRS *list, JS_EXPR *data) {
 }
 
 void add_child_expression(JS_EXPR *parent, JS_EXPR *child) {
-  // TODO:
-  // int ret = update_state(parent, child);
-  // if (ret) ; //TODO: fail upwards
-
   // TODO: confirm that the *current* first child of parent is in a terminal state
 
-  push_expression(&parent->children, child);
+  parent->child_count ++;
   update_state(parent, NULL);
+  push_expression(&parent->children, child);
 }
 
 void add_postfix_child_expression(JS_EXPR *expr, JS_EXPR *new) {
   JS_EXPR *child;
-  child = pop_expression(&expr->children);
+  child = pop_first_child(expr);
 
   // can't subjugate an unfinished child
   assert(TERMINAL_EXPR_STATE(child));
