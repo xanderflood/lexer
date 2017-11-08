@@ -53,7 +53,7 @@ int read_statement(JS_STMT *stmt) {
     if (! signalled) {
       if (EXPECTANT_EXPR_STATE(current)) {
         // If it's expectant, then try to interpret `tok` as a noun.
-        et = interpret_operator_token_as_noun(&tok);
+        et = interpret_token_as_noun(&tok);
 
         if (et == IND_EXPR) {
           return -1; // raise UNEXPECTED_????
@@ -66,7 +66,7 @@ int read_statement(JS_STMT *stmt) {
           current = new;
         }
       } else if (VIS_CHILD_EXPR_STATE(current)) {
-        et = interpret_operator_token_as_verb(&tok);
+        et = interpret_token_as_verb(&tok);
 
         if (et == IND_EXPR) {
           return -1; // raise UNEXPECTED_????

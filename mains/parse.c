@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "lex.h"
+#include "parse.h"
 
 int main(int narg, char **args) {
   TOKEN_STREAM *ts;
@@ -11,9 +12,11 @@ int main(int narg, char **args) {
     exit(1);
   }
 
-  do {
-    put_token(&ts->data, false);
-  } while (!next_token(&ts, 1));
+  JS_STMT *stmt = init_statement();
+  if (! read_statement(stmt)) {
+  	printf("FAILED");
+  	return 1;
+  }
 
   return 0;
 }
