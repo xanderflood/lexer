@@ -18,5 +18,7 @@ int main(int narg, char **args) {
   	return 1;
   }
 
+  print_expression_tree(stmt->expressions->data);
+
   return 0;
 }

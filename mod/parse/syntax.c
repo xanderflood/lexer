@@ -54,205 +54,205 @@ const EXPR_FORMAT_INFO format_info[NUM_EXPR_FORMATS] = {
 
 const EXPR_TYPE_INFO type_info[NUM_EXPR_TYPES] = {
   // IND_EXPR [indeterminate]
-  { .format = INV_EXPR_FMT, .precedence = INVALID_EXPR_PREC },
+  { .format = INV_EXPR_FMT, .precedence = INVALID_EXPR_PREC, .name = "IND" },
 
   // ROOT_EXPR [placeholder at the top of a statement's expr tree]
-  { .format = ROOT_EXPR_FMT, .precedence = LEAF_EXPR_PREC },
+  { .format = ROOT_EXPR_FMT, .precedence = LEAF_EXPR_PREC, .name = "ROOT" },
 
   // LIT_NUM_EXPR [numeric literal]
-  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC },
+  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC, .name = "LIT_NUM" },
 
   // LIT_STR_EXPR [string literal]
-  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC },
+  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC, .name = "LIT_STR" },
 
   // SYMBOL_EXPR [string data]
-  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC },
+  { .format = LEAF_EXPR_FMT, .precedence = LEAF_EXPR_PREC, .name = "SYMBOL" },
 
   // DECL_EXPR [string data (similar to SYMBOL but declares a )]
-  { .format = VAR_DECL_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC },
+  { .format = VAR_DECL_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC, .name = "DECL" },
 
   // ARRAY_EXPR [arbitrary list of expressions]
-  { .format = ARRAY_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC },
+  { .format = ARRAY_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC, .name = "ARRAY" },
 
   // OBJECT_EXPR [alternates between symbols and RVALUE types]
-  { .format = OBJECT_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC },
+  { .format = OBJECT_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC, .name = "OBJECT" },
 
   // FUNCTION_EXPR [a function definition]
-  { .format = FCN_DEFN_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC },
+  { .format = FCN_DEFN_EXPR_FMT, .precedence = CONTAINER_EXPR_PREC, .name = "FUNCTION" },
 
   // PAREN_EXPR [a)]
-  { .format = PAREN_EXPR_FMT, .precedence = 20 },
+  { .format = PAREN_EXPR_FMT, .precedence = 20, .name = "PAREN" },
 
   // ACCESS_EXPR [a.b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 19 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 19, .name = "ACCESS" },
 
   // COMP_ACCESS_EXPR [a[b]]
-  { .format = COMP_ACCESS_EXPR_FMT, .precedence = 19 },
+  { .format = COMP_ACCESS_EXPR_FMT, .precedence = 19, .name = "COMP_ACCESS" },
 
   // NEW_ARGS_EXPR [new a (b, ...)]
-  { .format = NEW_ARGS_EXPR_FMT, .precedence = 19 },
+  { .format = NEW_ARGS_EXPR_FMT, .precedence = 19, .name = "NEW_ARGS" },
 
   // CALL_EXPR [a(...)]
-  { .format = FCN_CALL_EXPR_FMT, .precedence = 19 },
+  { .format = FCN_CALL_EXPR_FMT, .precedence = 19, .name = "CALL" },
 
   // NEW_EXPR [new a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 18 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 18, .name = "NEW" },
 
   // POST_INCR_EXPR [a ++]
-  { .format = POSTFIX_UNOP_EXPR_FMT, .precedence = 17 },
+  { .format = POSTFIX_UNOP_EXPR_FMT, .precedence = 17, .name = "POST_INCR" },
 
   // POST_DECR_EXPR [a --]
-  { .format = POSTFIX_UNOP_EXPR_FMT, .precedence = 17 },
+  { .format = POSTFIX_UNOP_EXPR_FMT, .precedence = 17, .name = "POST_DECR" },
 
   // NOT_EXPR [! a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "NOT" },
 
   // BITNOT_EXPR [~ a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "BITNOT" },
 
   // POS_EXPR [+ a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "POS" },
 
   // NEG_EXPR [- a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "NEG" },
 
   // PRE_INCR_EXPR [++ a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "PRE_INCR" },
 
   // PRE_DECR_EXPR [-- a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "PRE_DECR" },
 
   // TYPEOF_EXPR [typdeof a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "TYPEOF" },
 
   // VOID_EXPR [void a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "VOID" },
 
   // DELETE_EXPR [delete a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 16, .name = "DELETE" },
 
   // EXP_EXPR [a ** b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 15 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 15, .name = "EXP" },
 
   // TIMES_EXPR [a * b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14, .name = "TIMES" },
 
   // QUOT_EXPR [a / b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14, .name = "QUOT" },
 
   // MOD_EXPR [a % b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 14, .name = "MOD" },
 
   // PLUS_EXPR [a + b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 13 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 13, .name = "PLUS" },
 
   // MINUS_EXPR [a - b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 13 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 13, .name = "MINUS" },
 
   // BSLEFT_EXPR [a << b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12, .name = "BSLEFT" },
 
   // BSRIGHT_EXPR [a >> b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12, .name = "BSRIGHT" },
 
   // UBSRIGHT_EXPR [a >>> b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 12, .name = "UBSRIGHT" },
 
   // LT_EXPR [a < b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "LT" },
 
   // GT_EXPR [a > b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "GT" },
 
   // LET_EXPR [a <= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "LET" },
 
   // GET_EXPR [a >= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "GET" },
 
   // IN_EXPR [a in b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "IN" },
 
   // INSTANCEOF_EXPR [a instanceof b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 11, .name = "INSTANCEOF" },
 
   // EQ_EXPR [a == b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10, .name = "EQ" },
 
   // INEQ_EXPR [a != b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10, .name = "INEQ" },
 
   // STRICT_EQ_EXPR [a === b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10, .name = "STRICT_EQ" },
 
   // STRICT_INEQ_EXPR [a !== b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 10, .name = "STRICT_INEQ" },
 
   // BAND_EXPR [a & b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 9 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 9, .name = "BAND" },
 
   // BXOR_EXPR [a ^ b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 8 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 8, .name = "BXOR" },
 
   // BOR_EXPR [a | b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 7 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 7, .name = "BOR" },
 
   // LAND_EXPR [a && b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 6 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 6, .name = "LAND" },
 
   // LOR_EXPR [a || b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 5 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 5, .name = "LOR" },
 
   // COND_EXPR [a ? b : c]
-  { .format = CONF_TRIOP_EXPR_FMT, .precedence = 4 },
+  { .format = CONF_TRIOP_EXPR_FMT, .precedence = 4, .name = "COND" },
 
   // ASSIGN_EXPR [a = b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN" },
 
   // ASSIGN_PLUS_EXPR [a += b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_PLUS" },
 
   // ASSIGN_TIMES_EXPR [a *= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_TIMES" },
 
   // ASSIGN_EXP_EXPR [a **= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_EXP" },
 
   // ASSIGN_QUOT_EXPR [a /= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_QUOT" },
 
   // ASSIGN_MOD_EXPR [a %= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_MOD" },
 
   // ASSIGN_BSLEFT_EXPR [a <<= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_BSLEFT" },
 
   // ASSIGN_BSRIGHT_EXPR [a >>= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_BSRIGHT" },
 
   // ASSIGN_UBSRIGHT_EXPR [a >>>= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_UBSRIGHT" },
 
   // ASSIGN_BAND_EXPR [a &= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_BAND" },
 
   // ASSIGN_BXOR_EXPR [a ^= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_BXOR" },
 
   // ASSIGN_BOR_EXPR [a |= b]
-  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3 },
+  { .format = INFIX_BINOP_EXPR_FMT, .precedence = 3, .name = "ASSIGN_BOR" },
 
   // YIELD_EXPR [yield a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 2 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 2, .name = "YIELD" },
 
   // YIELD_STAR_EXPR [yield *a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 2 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 2, .name = "YIELD_STAR" },
 
   // SPREAD_EXPR [... a]
-  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 1 },
+  { .format = PREFIX_UNOP_EXPR_FMT, .precedence = 1, .name = "SPREAD" },
 
   // COMMA_EXPR [a, b (valuates to b)]
-  { .format =  INFIX_BINOP_EXPR_FMT, .precedence = 0 }
+  { .format =  INFIX_BINOP_EXPR_FMT, .precedence = 0, .name = "COMMA" }
 };
 
 // each EXPR_TYPE has an associated

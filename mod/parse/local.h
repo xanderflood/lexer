@@ -21,6 +21,8 @@ typedef struct {
 
   // where to position this expression along the frontier of active ones
   EXPR_PRECEDENCE precedence;
+
+  char *name;
 } EXPR_TYPE_INFO;
 
 typedef struct {

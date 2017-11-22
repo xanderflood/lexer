@@ -73,4 +73,7 @@ void add_postfix_child_expression(JS_EXPR *expr,   JS_EXPR *new);
 int read_statement(TOKEN_STREAM *ts, JS_STMT *stmt);
 int read_block(JS_EXPR *block);
 
+// print.c
+void print_expression_tree(JS_EXPR *expr);
+
 #endif
