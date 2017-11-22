@@ -14,17 +14,12 @@ static void seek_downwards(JS_EXPR **current, JS_EXPR *opr);
 // returns:
 //   0 OK
 //   1 expected semicolon
-int read_statement(JS_STMT *stmt) {
-  int ret;
-  TOKEN tok;
-  TOKEN_STREAM *ts;
+int read_statement(TOKEN_STREAM *ts, JS_STMT *stmt) {
+  TOKEN *tok;
   expression_type et;
 
   // always points to the LOWEST unfinished OPR-type node
   JS_EXPR *new, *current;
-
-  if ((ret = init_token_stream(&ts)) < 0)
-    return ret;
 
   // TODO: if first token is KEY_TOK || PNC_TOK('{'),
   //       consider other statement types
@@ -38,41 +33,42 @@ int read_statement(JS_STMT *stmt) {
   // No type other than a ROOT_EXPR is ever terminal and expectant at once
   //
   do {
+    read_token(ts, &tok);
+
     // There are only a handful of tokens used as signals, and they are all
-    // single-character: ";,]):". None of them are nouns, and only the comma
-    // is ever a verb.
+    // single-character: ";,]):". None of them can be nouns, and only the
+    // comma is ever a verb.
 
     bool signalled = false;
     if (EXPECTING_SIGNAL_STATE(current)) {
-      if (! update_state(current, &tok)) {
+      if (! update_state(current, tok)) {
         signalled = true;
-        // TODO: state was updated, do we need to do anything?
       }
     }
 
     if (! signalled) {
       if (EXPECTANT_EXPR_STATE(current)) {
         // If it's expectant, then try to interpret `tok` as a noun.
-        et = interpret_token_as_noun(&tok);
+        et = interpret_token_as_noun(tok);
 
         if (et == IND_EXPR) {
           return -1; // raise UNEXPECTED_????
         } else {
           new = init_expression(et);
-          new->data = strdup(tok.s);
+          new->data = strdup(tok->s);
 
           add_child_expression(current, new);
 
           current = new;
         }
       } else if (VIS_CHILD_EXPR_STATE(current)) {
-        et = interpret_token_as_verb(&tok);
+        et = interpret_token_as_verb(tok);
 
         if (et == IND_EXPR) {
           return -1; // raise UNEXPECTED_????
         } else {
           new = init_expression(et);
-          new->data = strdup(tok.s);
+          new->data = strdup(tok->s);
 
           seek_downwards(&current, new);
 

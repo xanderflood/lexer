@@ -13,7 +13,7 @@ int main(int narg, char **args) {
   }
 
   JS_STMT *stmt = init_statement();
-  if (! read_statement(stmt)) {
+  if (! read_statement(ts, stmt)) {
   	printf("FAILED");
   	return 1;
   }

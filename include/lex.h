@@ -52,6 +52,7 @@ struct TOKEN_STREAM {
 };
 typedef struct TOKEN_STREAM TOKEN_STREAM;
 
+#define read_token(ts, tok) peek_token(ts, 0, tok);
 int init_token_stream(TOKEN_STREAM **ts);
 int next_token(TOKEN_STREAM **ts, char destroy);
 int peek_token(TOKEN_STREAM *ts, uint k, TOKEN **to);

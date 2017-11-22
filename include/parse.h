@@ -2,6 +2,7 @@
 #define PARSE_H
 
 #include "shared.h"
+#include "lex.h"
 
 typedef enum {
   IND_STMT,          // indeterminate
@@ -207,7 +208,7 @@ void         add_child_expression(JS_EXPR *parent, JS_EXPR *child);
 void add_postfix_child_expression(JS_EXPR *expr,   JS_EXPR *new);
 
 // read.c
-int read_statement(JS_STMT *stmt);
+int read_statement(TOKEN_STREAM *ts, JS_STMT *stmt);
 int read_block(JS_EXPR *block);
 
 #endif
