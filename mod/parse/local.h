@@ -1,46 +1,38 @@
+#ifndef PARSE_LOCAL_H
+#define PARSE_LOCAL_H
+
 #include "parse.h"
 #include "lex.h"
 
 // tree.c
 void push_expression(JS_EXPRS *list, JS_EXPR *data);
 
-// syntax.c
+// expressions.c
 int update_state(JS_EXPR *parent, TOKEN *new);
 void init_state(JS_EXPR *expr);
 
-typedef enum {
-  INV_EXPR_FMT,
-  LEAF_EXPR_FMT,
-  ROOT_EXPR_FMT,
+EXPR_TYPE interpret_token_as_noun(TOKEN *tok);
+EXPR_TYPE interpret_token_as_verb(TOKEN *tok);
 
-  VAR_DECL_EXPR_FMT,
-  ARRAY_EXPR_FMT,
-  OBJECT_EXPR_FMT,
-  FCN_DEFN_EXPR_FMT,
+// syntax.c
+typedef struct {
+  // the internal state machine for expressions of this type
+  EXPR_FORMAT format;
 
-  PREFIX_UNOP_EXPR_FMT,
-  POSTFIX_UNOP_EXPR_FMT,
-  INFIX_BINOP_EXPR_FMT,
+  // where to position this expression along the frontier of active ones
+  EXPR_PRECEDENCE precedence;
+} EXPR_TYPE_INFO;
 
-  PAREN_EXPR_FMT,
-  COMP_ACCESS_EXPR_FMT,
-  NEW_ARGS_EXPR_FMT,
-  FCN_CALL_EXPR_FMT,
+typedef struct {
+  // how many children does do expressions of this format have
+  // 0 means variadic, -1 means none
+  int size;
 
-  CONF_TRIOP_EXPR_FMT
-} expression_format;
+  // are expressions of this type created after their first child?
+  bool after_the_fact;
+} EXPR_FORMAT_INFO;
 
-#define num_expression_formats 15
-const bool expr_type_after_the_fact[num_expression_formats];
-const expression_format expr_type_fmts[num_expr_types];
+const EXPR_TYPE_INFO type_info[NUM_EXPR_TYPES];
+const EXPR_FORMAT_INFO format_info[NUM_EXPR_FORMATS];
 
-typedef enum {
-  INVALID_EXPR_PREC = -1,
-  LEAF_EXPR_PREC = -2,
-  CONTAINER_EXPR_PREC = -3
-} expression_precedence;
-
-const expression_precedence opr_prec_info[num_expr_types];
-
-expression_type interpret_token_as_noun(TOKEN *tok);
-expression_type interpret_token_as_verb(TOKEN *tok);
+#endif

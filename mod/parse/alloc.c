@@ -14,7 +14,7 @@ JS_STMT *init_statement() {
   return stmt;
 }
 
-JS_EXPR *init_expression(expression_type t) {
+JS_EXPR *init_expression(EXPR_TYPE t) {
   JS_EXPR *expr = (JS_EXPR*)malloc(sizeof(JS_EXPR));
   expr->children = NULL;
   expr->parent   = NULL;

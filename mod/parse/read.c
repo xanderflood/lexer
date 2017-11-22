@@ -16,7 +16,7 @@ static void seek_downwards(JS_EXPR **current, JS_EXPR *opr);
 //   1 expected semicolon
 int read_statement(TOKEN_STREAM *ts, JS_STMT *stmt) {
   TOKEN *tok;
-  expression_type et;
+  EXPR_TYPE et;
 
   // always points to the LOWEST unfinished OPR-type node
   JS_EXPR *new, *current;
@@ -105,10 +105,11 @@ static int seek_upwards(JS_EXPR **current) {
 static void seek_downwards(JS_EXPR **current, JS_EXPR *opr) {
   JS_EXPR *target = *current;
 
-  assert(opr_prec_info[opr->type] >= 0);
+  assert(type_info[opr->type].precedence >= 0);
 
-  while (opr_prec_info[opr->type] > opr_prec_info[target->type] && VIS_CHILD_EXPR_STATE(target)) {
-    assert(opr_prec_info[target->type] >= 0);
+  while (type_info[opr->type].precedence > type_info[target->type].precedence
+        && VIS_CHILD_EXPR_STATE(target)) {
+    assert(type_info[target->type].precedence >= 0);
 
     target = target->children->data;
   }
